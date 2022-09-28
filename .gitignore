@@ -1,0 +1,13 @@
+/log
+/out
+/target
+/.idea
+*.iml
+*.log
+*.txt
+*.mwb
+*.sql
+*.jar
+!src/main/resources/*
+!src/main/resources/*.sql
+!src/main/resources/*.mwb
