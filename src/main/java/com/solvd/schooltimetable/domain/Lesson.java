@@ -1,4 +1,4 @@
-package com.solvd.school.domain;
+package com.solvd.schooltimetable.domain;
 
 public class Lesson {
 
