@@ -4,11 +4,7 @@ public class Lesson {
 
     private Long id;
     private Integer lessonNumber;
-    private Subject subject;
-
-    public String toString() {
-        return ("\nLesson: id: " + this.id + " lessonNumber: " + this.lessonNumber);
-    }
+    private Teacher teacher;
 
     public Long getId() {
         return id;
@@ -26,11 +22,11 @@ public class Lesson {
         this.lessonNumber = lessonNumber;
     }
 
-    public Subject getSubject() {
-        return subject;
+    public Teacher getTeacher() {
+        return teacher;
     }
 
-    public void setSubject(Subject subject) {
-        this.subject = subject;
+    public void setTeacher(Teacher teacher) {
+        this.teacher = teacher;
     }
 }
