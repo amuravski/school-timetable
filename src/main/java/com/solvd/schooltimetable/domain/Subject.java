@@ -1,6 +1,6 @@
-package com.solvd.school.domain;
+package com.solvd.schooltimetable.domain;
 
-public class DayName {
+public class Subject {
 
     private Long id;
     private String name;
