@@ -8,10 +8,6 @@ public class Day {
     private DayName dayName;
     private List<Lesson> lessons;
 
-    public String toString() {
-        return ("Day: id: " + this.id + " dayName: " + this.dayName + " lessons: " + this.lessons);
-    }
-
     public Long getId() {
         return id;
     }

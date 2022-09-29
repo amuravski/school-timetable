@@ -4,7 +4,6 @@ public class Subject {
 
     private Long id;
     private String name;
-    private Teacher teacher;
 
     public Long getId() {
         return id;
@@ -20,13 +19,5 @@ public class Subject {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public Teacher getTeacher() {
-        return teacher;
-    }
-
-    public void setTeacher(Teacher teacher) {
-        this.teacher = teacher;
     }
 }
