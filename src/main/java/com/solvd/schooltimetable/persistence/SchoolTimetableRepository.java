@@ -1,20 +1,7 @@
 package com.solvd.schooltimetable.persistence;
 
-import java.util.List;
-import java.util.Optional;
+import com.solvd.schooltimetable.domain.SchoolTimetable;
 
-public interface SchoolTimetableRepository<T> {
-
-    void create(T toCreate);
-
-    List<T> findAll();
-
-    Optional<T> findById(Long id);
-
-    void update(T toUpdate);
-
-    void delete(T toDelete);
-
-    void deleteById(Long id);
+public interface SchoolTimetableRepository extends BaseSchoolTimetableRepository<SchoolTimetable> {
 
 }

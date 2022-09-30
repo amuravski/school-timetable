@@ -1,19 +1,7 @@
 package com.solvd.schooltimetable.service;
 
-import java.util.List;
+import com.solvd.schooltimetable.domain.SchoolTimetable;
 
-public interface SchoolTimetableService<T> {
-
-    void create(T toCreate);
-
-    List<T> findAll();
-
-    T findById(Long id);
-
-    void update(T toUpdate);
-
-    void delete(T toDelete);
-
-    void deleteById(Long id);
+public interface SchoolTimetableService extends BaseSchoolTimetableService<SchoolTimetable> {
 
 }

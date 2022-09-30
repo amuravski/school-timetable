@@ -5,8 +5,8 @@ import java.util.List;
 public class ClassTimetable {
 
     private Long id;
-    private ClassName className;
-    private List<Day> days;
+    private SchoolClass schoolClass;
+    private List<SchoolDay> schoolDays;
 
     public Long getId() {
         return id;
@@ -16,19 +16,19 @@ public class ClassTimetable {
         this.id = id;
     }
 
-    public ClassName getSchoolClass() {
-        return className;
+    public SchoolClass getSchoolClass() {
+        return schoolClass;
     }
 
-    public void setSchoolClass(ClassName className) {
-        this.className = className;
+    public void setSchoolClass(SchoolClass schoolClass) {
+        this.schoolClass = schoolClass;
     }
 
-    public List<Day> getDays() {
-        return days;
+    public List<SchoolDay> getSchoolDays() {
+        return schoolDays;
     }
 
-    public void setDays(List<Day> days) {
-        this.days = days;
+    public void setSchoolDays(List<SchoolDay> schoolDays) {
+        this.schoolDays = schoolDays;
     }
 }
