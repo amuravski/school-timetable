@@ -1,6 +1,6 @@
 package com.solvd.schooltimetable.domain;
 
-public class ClassName {
+public class SchoolClass {
 
     private Long id;
     private String name;

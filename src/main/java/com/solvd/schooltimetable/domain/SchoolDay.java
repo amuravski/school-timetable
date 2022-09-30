@@ -2,10 +2,10 @@ package com.solvd.schooltimetable.domain;
 
 import java.util.List;
 
-public class Day {
+public class SchoolDay {
 
     private Long id;
-    private DayName dayName;
+    private CalendarDay calendarDay;
     private List<Lesson> lessons;
 
     public Long getId() {
@@ -16,12 +16,12 @@ public class Day {
         this.id = id;
     }
 
-    public DayName getDayName() {
-        return dayName;
+    public CalendarDay getCalendarDay() {
+        return calendarDay;
     }
 
-    public void setDayName(DayName dayName) {
-        this.dayName = dayName;
+    public void setCalendarDay(CalendarDay calendarDay) {
+        this.calendarDay = calendarDay;
     }
 
     public List<Lesson> getLessons() {
