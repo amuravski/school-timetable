@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.solvd.schooltimetable.persistence.TeacherRepository">
+
+    <insert id="create" keyProperty="teacher.id" useGeneratedKeys="true">
+        insert into teachers (subject_id, full_name)
+        values (#{teacher.subject.id}, #{teacher.fullName}
+    </insert>
+
+    <sql id="find">
+        select t.id as teacher_id, t.full_name as teachers_name
+        from teachers t
+    </sql>
+
+    <select id="findAll" resultMap="TeacherResultMap">
+        select t.id as teacher_id, t.full_name as teachers_name
+        from teachers t
+    </select>
+
+    <select id="findById" resultMap="TeacherResultMap">
+        select t.id as teacher_id, t.full_name as teachers_name
+        from teachers t
+        where t.id = #{id}
+    </select>
+
+    <update id="update" keyProperty="teacher.id" useGeneratedKeys="true">
+        update teachers set
+        full_name = #{teacher.fullName},
+        subject_id = #{teacher.subject.id}
+        where id = #{teacher.id}
+    </update>
+
+    <delete id="deleteById">
+        delete from teachers where id = #{id}
+    </delete>
+
+    <resultMap id="TeacherResultMap" type="com.solvd.schooltimetable.domain.Teacher" autoMapping="false">
+        <id property="id" column="teacher_id"/>
+        <result property="fullName" column="teacher_fullName"/>
+    </resultMap>
+</mapper>
