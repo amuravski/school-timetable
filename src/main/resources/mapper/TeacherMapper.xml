@@ -2,40 +2,57 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.solvd.schooltimetable.persistence.TeacherRepository">
 
-    <insert id="create" keyProperty="teacher.id" useGeneratedKeys="true">
+    <resultMap id="TeacherResultMap" type="com.solvd.schooltimetable.domain.Teacher" autoMapping="false">
+        <id property="id" column="teacher_id"/>
+        <result property="fullName" column="teacher_full_name"/>
+        <association property="subject"
+                     resultMap="com.solvd.schooltimetable.persistence.SubjectRepository.SubjectResultMap"/>
+
+    </resultMap>
+
+    <insert id="create" keyProperty="id" useGeneratedKeys="true">
         insert into teachers (subject_id, full_name)
-        values (#{teacher.subject.id}, #{teacher.fullName}
+        values (#{subject.id}, #{fullName})
     </insert>
 
-    <sql id="find">
-        select t.id as teacher_id, t.full_name as teachers_name
+    <sql id="fields">
+        t.id as teacher_id,
+        t.full_name as teacher_full_name
+    </sql>
+
+    <sql id="joins">
+        left join subjects s on s.id = t.subject_id
+    </sql>
+
+    <sql id="findAll">
+        select
+        <include refid="fields"/>,
+        <include refid="com.solvd.schooltimetable.persistence.SubjectRepository.fields"/>
         from teachers t
+        <include refid="joins"/>
     </sql>
 
     <select id="findAll" resultMap="TeacherResultMap">
-        select t.id as teacher_id, t.full_name as teachers_name
-        from teachers t
+        <include refid="findAll"/>
     </select>
 
     <select id="findById" resultMap="TeacherResultMap">
-        select t.id as teacher_id, t.full_name as teachers_name
-        from teachers t
-        where t.id = #{id}
+        <include refid="findAll"/>
+        <![CDATA[ where t.id = #{id}; ]]>
     </select>
 
-    <update id="update" keyProperty="teacher.id" useGeneratedKeys="true">
+    <update id="update" keyProperty="Teacher.id" useGeneratedKeys="true">
         update teachers set
-        full_name = #{teacher.fullName},
-        subject_id = #{teacher.subject.id}
-        where id = #{teacher.id}
+        full_name = #{fullName},
+        subject_id = #{subject.id}
+        where id = #{id}
     </update>
 
     <delete id="deleteById">
-        delete from teachers where id = #{id}
+        delete from teachers where id = #{id};
     </delete>
 
-    <resultMap id="TeacherResultMap" type="com.solvd.schooltimetable.domain.Teacher" autoMapping="false">
-        <id property="id" column="teacher_id"/>
-        <result property="fullName" column="teacher_fullName"/>
-    </resultMap>
+    <delete id="delete">
+        delete from teachers where id = #{id}
+    </delete>
 </mapper>
