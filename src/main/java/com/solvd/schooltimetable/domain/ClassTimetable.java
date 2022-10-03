@@ -1,6 +1,7 @@
 package com.solvd.schooltimetable.domain;
 
 import java.util.List;
+import java.util.Objects;
 
 public class ClassTimetable {
 
@@ -30,5 +31,33 @@ public class ClassTimetable {
 
     public void setSchoolDays(List<SchoolDay> schoolDays) {
         this.schoolDays = schoolDays;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof ClassTimetable)) {
+            return false;
+        }
+        ClassTimetable that = (ClassTimetable) o;
+        return Objects.equals(id, that.id) &&
+                Objects.equals(schoolClass, that.schoolClass) &&
+                Objects.equals(schoolDays, that.schoolDays);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, schoolClass, schoolDays);
+    }
+
+    @Override
+    public String toString() {
+        return "ClassTimetable{" +
+                "id=" + id +
+                ", schoolClass=" + schoolClass +
+                ", schoolDays=" + schoolDays +
+                '}';
     }
 }
