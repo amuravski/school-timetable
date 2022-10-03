@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.solvd.schooltimetable.persistence.SubjectRepository">
+
+    <insert id="create" keyProperty="id" useGeneratedKeys="true">
+        Insert into Subjects (name) values (#{name})
+    </insert>
+
+    <select id="findAll" resultMap="SubjectResultMap">
+        Select s.id as subject_id, s.name as subject_name from Subjects s
+    </select>
+
+    <select id="findById" resultMap="SubjectResultMap">
+        Select s.id as subject_id, s.name as subject_name from Subjects s where s.id = #{id}
+    </select>
+
+    <update id="update">
+        Update Subjects set name = #{name} where id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        delete from Subjects where id = #{id}
+    </delete>
+
+    <resultMap id="SubjectResultMap" type="com.solvd.schooltimetable.domain.Subject" autoMapping="false">
+        <id property="id" column="subject_id"/>
+        <result property="name" column="subject_name"/>
+    </resultMap>
+
+</mapper>
