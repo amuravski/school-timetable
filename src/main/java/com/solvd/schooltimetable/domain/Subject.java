@@ -29,19 +29,16 @@ public class Subject {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
+    public boolean equals(Object o) {
+        if (this == o) {
             return true;
         }
-        if (obj == null || obj.getClass() != this.getClass()) {
+        if (!(o instanceof Subject)) {
             return false;
         }
-
-        Subject guest = (Subject) obj;
-        return Objects.equals(id, guest.id)
-                && (Objects.equals(name, guest.name)
-                || (name != null && name.equals(guest.getName()))
-        );
+        Subject subject = (Subject) o;
+        return Objects.equals(id, subject.id) &&
+                Objects.equals(name, subject.name);
     }
 
     @Override

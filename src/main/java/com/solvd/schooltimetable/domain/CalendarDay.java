@@ -25,15 +25,20 @@ public class CalendarDay {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof CalendarDay)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof CalendarDay)) {
+            return false;
+        }
         CalendarDay that = (CalendarDay) o;
-        return Objects.equals(getId(), that.getId()) && Objects.equals(getName(), that.getName());
+        return Objects.equals(id, that.id) &&
+                name.equals(that.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getName());
+        return Objects.hash(id, name);
     }
 
     @Override

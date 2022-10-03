@@ -1,6 +1,5 @@
 package com.solvd.schooltimetable.persistence;
 
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -14,24 +13,24 @@ public class GeneticAlgoConfig {
     private static final Logger LOGGER = LogManager.getLogger(GeneticAlgoConfig.class);
 
     private final int minWorkDays;
-    private final int minLesson;
-    private final int maxLesson;
-    private final int population;
+    private final int minLessons;
+    private final int maxLessons;
+    private final int populationSize;
     private final int percentileThreshold;
     private final boolean elitism;
 
     public GeneticAlgoConfig(String geneticAlgoConfigName) {
         Properties geneticAlgoConfigProperties = new Properties();
-        File propertiesFile = new File(geneticAlgoConfigName);
+        File propertiesFile = new File(MybatisConfig.class.getClassLoader().getResource(geneticAlgoConfigName).getFile());
         try (FileInputStream f = new FileInputStream(propertiesFile)) {
             geneticAlgoConfigProperties.load(f);
         } catch (IOException e) {
             LOGGER.error(e);
         }
         minWorkDays = Integer.parseInt(geneticAlgoConfigProperties.getProperty("minWorkDays"));
-        minLesson = Integer.parseInt(geneticAlgoConfigProperties.getProperty("minLesson"));
-        maxLesson = Integer.parseInt(geneticAlgoConfigProperties.getProperty("maxLesson"));
-        population = Integer.parseInt(geneticAlgoConfigProperties.getProperty("population"));
+        minLessons = Integer.parseInt(geneticAlgoConfigProperties.getProperty("minLessons"));
+        maxLessons = Integer.parseInt(geneticAlgoConfigProperties.getProperty("maxLessons"));
+        populationSize = Integer.parseInt(geneticAlgoConfigProperties.getProperty("populationSize"));
         percentileThreshold = Integer.parseInt(geneticAlgoConfigProperties.getProperty("percentileThreshold"));
         elitism = Boolean.parseBoolean(geneticAlgoConfigProperties.getProperty("elitism"));
     }
@@ -40,12 +39,12 @@ public class GeneticAlgoConfig {
         return minWorkDays;
     }
 
-    public int getMinLesson() {
-        return minLesson;
+    public int getMinLessons() {
+        return minLessons;
     }
 
-    public int getPopulation() {
-        return population;
+    public int getPopulationSize() {
+        return populationSize;
     }
 
     public int getPercentileThreshold() {
@@ -56,17 +55,17 @@ public class GeneticAlgoConfig {
         return elitism;
     }
 
-    public int getMaxLesson() {
-        return maxLesson;
+    public int getMaxLessons() {
+        return maxLessons;
     }
 
     @Override
     public String toString() {
         return "GeneticAlgoConfig{" +
                 "minWorkDays=" + minWorkDays +
-                ", minLesson=" + minLesson +
-                ", maxLesson=" + maxLesson +
-                ", population=" + population +
+                ", minLessons=" + minLessons +
+                ", maxLessons=" + maxLessons +
+                ", populationSize=" + populationSize +
                 ", percentileThreshold=" + percentileThreshold +
                 ", elitism=" + elitism +
                 '}';

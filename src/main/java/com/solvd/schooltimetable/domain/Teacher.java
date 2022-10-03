@@ -34,18 +34,21 @@ public class Teacher {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Teacher)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Teacher)) {
+            return false;
+        }
         Teacher teacher = (Teacher) o;
-        return Objects.equals(getId(), teacher.getId())
-                && Objects.equals(getFullName(),
-                teacher.getFullName())
-                && Objects.equals(getSubject(), teacher.getSubject());
+        return Objects.equals(id, teacher.id) &&
+                Objects.equals(fullName, teacher.fullName) &&
+                Objects.equals(subject, teacher.subject);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getFullName(), getSubject());
+        return Objects.hash(id, fullName, subject);
     }
 
     @Override

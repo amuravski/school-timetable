@@ -35,15 +35,21 @@ public class SchoolTimetable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof SchoolTimetable)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof SchoolTimetable)) {
+            return false;
+        }
         SchoolTimetable that = (SchoolTimetable) o;
-        return getHashcode() == that.getHashcode() && Objects.equals(getId(), that.getId()) && Objects.equals(getClassTimetables(), that.getClassTimetables());
+        return hashcode == that.hashcode &&
+                Objects.equals(id, that.id) &&
+                Objects.equals(classTimetables, that.classTimetables);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getHashcode(), getClassTimetables());
+        return Objects.hash(id, hashcode, classTimetables);
     }
 
     @Override

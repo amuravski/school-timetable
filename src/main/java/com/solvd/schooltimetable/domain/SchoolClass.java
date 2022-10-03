@@ -25,15 +25,20 @@ public class SchoolClass {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof SchoolClass)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof SchoolClass)) {
+            return false;
+        }
         SchoolClass that = (SchoolClass) o;
-        return Objects.equals(getId(), that.getId()) && Objects.equals(getName(), that.getName());
+        return Objects.equals(id, that.id) &&
+                Objects.equals(name, that.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), getName());
+        return Objects.hash(id, name);
     }
 
     @Override
