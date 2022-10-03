@@ -6,11 +6,6 @@
         <result property="name" column="calendar_day_name"/>
     </resultMap>
 
-    <insert id="create" keyProperty="id" useGeneratedKeys="true">
-        insert into calendar_days (name)
-        values (#{name})
-    </insert>
-
     <sql id="fields">
         cd.id as calendar_day_id,
         cd.name as calendar_day_name
@@ -21,6 +16,11 @@
         <include refid="fields"/>
         from calendar_days cd
     </sql>
+
+    <insert id="create" keyProperty="id" useGeneratedKeys="true">
+        insert into calendar_days (name)
+        values (#{name});
+    </insert>
 
     <select id="findAll" resultMap="CalendarDayResultMap">
         <include refid="findAll"/>
@@ -34,14 +34,10 @@
     <update id="update" keyProperty="CalendarDay.id" useGeneratedKeys="true">
         update calendar_days set
         name = #{name}
-        where id = #{id}
+        where id = #{id};
     </update>
 
     <delete id="deleteById">
-        delete from calendar_days where id = #{id}
-    </delete>
-
-    <delete id="delete">
-        delete from calendar_days where id = #{id}
+        delete from calendar_days where id = #{id};
     </delete>
 </mapper>

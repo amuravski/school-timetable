@@ -1,24 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.solvd.schooltimetable.persistence.ClassTimetableRepository">
-
     <resultMap id="ClassTimetableResultMap" type="com.solvd.schooltimetable.domain.ClassTimetable" autoMapping="false">
         <id property="id" column="classTimetable_id"/>
-<!--        <result property="lessonNumber" column="lesson_number"/>-->
-<!--                <association property="calendar_days"-->
-<!--                             resultMap="com.solvd.schooltimetable.persistence.CalendarDayRepository.TeacherResultMap"/>-->
+        <result property="lessonNumber" column="lesson_number"/>
+        <association property="calendar_days"
+                     resultMap="com.solvd.schooltimetable.persistence.CalendarDayRepository.TeacherResultMap"/>
         <collection property="lessons"
                     resultMap="com.solvd.schooltimetable.persistence.LessonRepository.LessonResultMap"/>
     </resultMap>
-
-<!--    private Long id;-->
-<!--    private SchoolClass schoolClass;-->
-<!--    private List<ClassTimetable> classTimetables;-->
-
-    <insert id="create" keyProperty="id" useGeneratedKeys="true">
-        insert into class_timetables (class_id, school_timetable_id)
-        values (#{schoolClass.id}, 1)
-    </insert>
 
     <sql id="fields">
         ct.id as timetable_id,
@@ -37,8 +27,12 @@
         left join lessons l on l.school_day_id = sd.id
         <include refid="com.solvd.schooltimetable.persistence.LessonRepository.joins"/>
         <include refid="com.solvd.schooltimetable.persistence.TeacherRepository.joins"/>
-
     </sql>
+
+    <insert id="create" keyProperty="id" useGeneratedKeys="true">
+        insert into class_timetables (class_id, school_timetable_id)
+        values (#{schoolClass.id}, 1);
+    </insert>
 
     <select id="findAll" resultMap="ClassTimetableResultMap">
         <include refid="findAll"/>
@@ -49,18 +43,14 @@
         <![CDATA[ where sd.id = #{id}; ]]>
     </select>
 
-    <update id="update" keyProperty="ClassTimetable.id" useGeneratedKeys="true">
+    <update id="update">
         update school_days set
         day_id = 1,
         timetable_id = 1
-        where id = #{id}
+        where id = #{id};
     </update>
 
     <delete id="deleteById">
-        delete from school_days where id = #{id}
-    </delete>
-
-    <delete id="delete">
-        delete from school_days where id = #{id}
+        delete from school_days where id = #{id};
     </delete>
 </mapper>

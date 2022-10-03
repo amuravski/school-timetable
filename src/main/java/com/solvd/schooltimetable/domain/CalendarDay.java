@@ -5,6 +5,13 @@ public class CalendarDay {
     private Long id;
     private String name;
 
+    public CalendarDay() {
+    }
+
+    public CalendarDay(String name) {
+        this.name = name;
+    }
+
     public Long getId() {
         return id;
     }

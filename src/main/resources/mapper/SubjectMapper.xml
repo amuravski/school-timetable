@@ -6,11 +6,6 @@
         <result property="name" column="subject_name"/>
     </resultMap>
 
-    <insert id="create" keyProperty="id" useGeneratedKeys="true">
-        insert into subjects (name)
-        values (#{name})
-    </insert>
-
     <sql id="fields">
         s.id as subject_id,
         s.name as subject_name
@@ -22,6 +17,11 @@
         from subjects s
     </sql>
 
+    <insert id="create" keyProperty="id" useGeneratedKeys="true">
+        insert into subjects (name)
+        values (#{name})
+    </insert>
+
     <select id="findAll" resultMap="SubjectResultMap">
         <include refid="findAll"/>
     </select>
@@ -31,17 +31,13 @@
         <![CDATA[ where s.id = #{id}; ]]>
     </select>
 
-    <update id="update" keyProperty="Subject.id" useGeneratedKeys="true">
+    <update id="update">
         update subjects set
         name = #{name}
-        where id = #{id}
+        where id = #{id};
     </update>
 
     <delete id="deleteById">
-        delete from subjects where id = #{id}
-    </delete>
-
-    <delete id="delete">
-        delete from subjects where id = #{id}
+        delete from subjects where id = #{id};
     </delete>
 </mapper>
