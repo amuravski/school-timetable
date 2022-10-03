@@ -16,5 +16,8 @@
         </environment>
     </environments>
     <mappers>
+        <mapper resource="mapper/CalendarDayMapper.xml"/>
+        <mapper resource="mapper/SubjectMapper.xml"/>
+        <mapper resource="mapper/SchoolClassMapper.xml"/>
     </mappers>
 </configuration>
