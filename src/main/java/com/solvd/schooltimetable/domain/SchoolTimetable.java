@@ -34,28 +34,24 @@ public class SchoolTimetable {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-        if (obj == null || obj.getClass() != this.getClass()) {
-            return false;
-        }
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof SchoolTimetable)) return false;
+        SchoolTimetable that = (SchoolTimetable) o;
+        return getHashcode() == that.getHashcode() && Objects.equals(getId(), that.getId()) && Objects.equals(getClassTimetables(), that.getClassTimetables());
+    }
 
-        SchoolTimetable guest = (SchoolTimetable) obj;
-        return Objects.equals(id, guest.id)
-                && (Objects.equals(hashcode, guest.hashcode))
-                && (classTimetables == guest.classTimetables
-                || (classTimetables != null && classTimetables.equals(guest.getClassTimetables()))
-        );
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getHashcode(), getClassTimetables());
     }
 
     @Override
     public String toString() {
-        return "SchoolTimetable{ "
-                + "Hashcode = " + hashcode
-                + " ID = " + id
-                + " ClassTimetables = " + classTimetables
-                + " }";
+        return "SchoolTimetable{" +
+                "id=" + id +
+                ", hashcode=" + hashcode +
+                ", classTimetables=" + classTimetables +
+                '}';
     }
 }

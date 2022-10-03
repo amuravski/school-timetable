@@ -24,26 +24,23 @@ public class CalendarDay {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-        if (obj == null || obj.getClass() != this.getClass()) {
-            return false;
-        }
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof CalendarDay)) return false;
+        CalendarDay that = (CalendarDay) o;
+        return Objects.equals(getId(), that.getId()) && Objects.equals(getName(), that.getName());
+    }
 
-        CalendarDay guest = (CalendarDay) obj;
-        return Objects.equals(id, guest.id)
-                && (Objects.equals(name, guest.name)
-                || (name != null && name.equals(guest.getName()))
-        );
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getName());
     }
 
     @Override
     public String toString() {
-        return "CalendarDay{ "
-                + "Name = " + name
-                + " ID = " + id
-                + " }";
+        return "CalendarDay{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                '}';
     }
 }

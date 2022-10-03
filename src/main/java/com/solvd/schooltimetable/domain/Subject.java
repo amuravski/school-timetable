@@ -24,6 +24,11 @@ public class Subject {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getName());
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
@@ -41,9 +46,9 @@ public class Subject {
 
     @Override
     public String toString() {
-        return "CalendarDay{ "
-                + "Name = " + name
-                + " ID = " + id
-                + " }";
+        return "Subject{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                '}';
     }
 }

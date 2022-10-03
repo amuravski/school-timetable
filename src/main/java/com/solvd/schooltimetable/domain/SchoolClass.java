@@ -24,26 +24,23 @@ public class SchoolClass {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-        if (obj == null || obj.getClass() != this.getClass()) {
-            return false;
-        }
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof SchoolClass)) return false;
+        SchoolClass that = (SchoolClass) o;
+        return Objects.equals(getId(), that.getId()) && Objects.equals(getName(), that.getName());
+    }
 
-        SchoolClass guest = (SchoolClass) obj;
-        return Objects.equals(id, guest.id)
-                && (Objects.equals(name, guest.name)
-                || (name != null && name.equals(guest.getName()))
-        );
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getName());
     }
 
     @Override
     public String toString() {
-        return "CalendarDay{ "
-                + "Name = " + name
-                + " ID = " + id
-                + " }";
+        return "SchoolClass{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                '}';
     }
 }

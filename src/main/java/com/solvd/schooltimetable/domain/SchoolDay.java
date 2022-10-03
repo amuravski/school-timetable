@@ -34,29 +34,24 @@ public class SchoolDay {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-        if (obj == null || obj.getClass() != this.getClass()) {
-            return false;
-        }
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof SchoolDay)) return false;
+        SchoolDay schoolDay = (SchoolDay) o;
+        return Objects.equals(getId(), schoolDay.getId()) && Objects.equals(getCalendarDay(), schoolDay.getCalendarDay()) && Objects.equals(getLessons(), schoolDay.getLessons());
+    }
 
-        SchoolDay guest = (SchoolDay) obj;
-        return Objects.equals(id, guest.id)
-                && (Objects.equals(calendarDay, guest.calendarDay)
-                || (calendarDay != null && calendarDay.equals(guest.getCalendarDay())))
-                && (lessons == guest.lessons
-                || (lessons != null && lessons.equals(guest.getLessons()))
-        );
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getCalendarDay(), getLessons());
     }
 
     @Override
     public String toString() {
-        return "SchoolDay{ "
-                + "CalendarDay = " + calendarDay
-                + " ID = " + id
-                + " Lessons = " + lessons
-                + " }";
+        return "SchoolDay{" +
+                "id=" + id +
+                ", calendarDay=" + calendarDay +
+                ", lessons=" + lessons +
+                '}';
     }
 }

@@ -33,29 +33,24 @@ public class Lesson {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-        if (obj == null || obj.getClass() != this.getClass()) {
-            return false;
-        }
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Lesson)) return false;
+        Lesson lesson = (Lesson) o;
+        return Objects.equals(getId(), lesson.getId()) && Objects.equals(getLessonNumber(), lesson.getLessonNumber()) && Objects.equals(getTeacher(), lesson.getTeacher());
+    }
 
-        Lesson guest = (Lesson) obj;
-        return Objects.equals(id, guest.id)
-                && (Objects.equals(lessonNumber, guest.lessonNumber)
-                || (lessonNumber != null && lessonNumber.equals(guest.getLessonNumber())))
-                && (teacher == guest.teacher
-                || (teacher != null && teacher.equals(guest.getTeacher()))
-        );
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getLessonNumber(), getTeacher());
     }
 
     @Override
     public String toString() {
-        return "ClassTimetable{ "
-                + "lessonNumber = " + lessonNumber
-                + " ID = " + id
-                + " Teacher = " + teacher
-                + " }";
+        return "Lesson{" +
+                "id=" + id +
+                ", lessonNumber=" + lessonNumber +
+                ", teacher=" + teacher +
+                '}';
     }
 }
