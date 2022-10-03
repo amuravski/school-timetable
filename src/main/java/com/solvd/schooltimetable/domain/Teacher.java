@@ -1,5 +1,7 @@
 package com.solvd.schooltimetable.domain;
 
+import java.util.Objects;
+
 public class Teacher {
 
     private Long id;
@@ -28,5 +30,42 @@ public class Teacher {
 
     public void setSubject(Subject subject) {
         this.subject = subject;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((fullName == null) ? 0 : fullName.hashCode());
+        result = prime * result + ((id == null) ? 0 : id.hashCode());
+        result = prime * result + ((subject == null) ? 0 : subject.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj == null || obj.getClass() != this.getClass()) {
+            return false;
+        }
+
+        Teacher guest = (Teacher) obj;
+        return Objects.equals(id, guest.id)
+                && (Objects.equals(fullName, guest.fullName)
+                || (fullName != null && fullName.equals(guest.getFullName())))
+                && (subject == guest.subject
+                || (subject != null && subject.equals(guest.getSubject()))
+        );
+    }
+
+    @Override
+    public String toString() {
+        return "SchoolTimetable{ "
+                + "FullName = " + fullName
+                + " ID = " + id
+                + " Subject = " + subject
+                + " }";
     }
 }
