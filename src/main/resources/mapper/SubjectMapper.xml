@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.solvd.schooltimetable.persistence.SubjectRepository">
-
     <resultMap id="SubjectResultMap" type="com.solvd.schooltimetable.domain.Subject" autoMapping="false">
         <id property="id" column="subject_id"/>
         <result property="name" column="subject_name"/>

@@ -13,6 +13,41 @@ public class Main {
     private static final Logger LOGGER = LogManager.getLogger(Main.class);
 
     public static void main(String[] args) {
+        CalendarDay calendarDay = new CalendarDay();
+        calendarDay.setName("Paytnica");
+
+        CalendarDayService calendarDayService = new CalendarDayServiceImpl();
+        calendarDayService.create(calendarDay);
+        LOGGER.info(calendarDayService.findById(calendarDay.getId()));
+
+        calendarDay.setName("Sybbota");
+        calendarDayService.update(calendarDay);
+        LOGGER.info(calendarDayService.findById(calendarDay.getId()));
+        calendarDayService.delete(calendarDay);
+
+        Subject subject = new Subject();
+        subject.setName("Istoriya");
+
+        SubjectService subjectService = new SubjectServiceImpl();
+        subjectService.create(subject);
+        LOGGER.info(subjectService.findById(subject.getId()));
+
+        subject.setName("Sybbota");
+        subjectService.update(subject);
+        LOGGER.info(subjectService.findById(subject.getId()));
+        subjectService.delete(subject);
+
+        SchoolClass schoolClass = new SchoolClass();
+        schoolClass.setName("4A");
+
+        SchoolClassService schoolClassService = new SchoolClassServiceImpl();
+        schoolClassService.create(schoolClass);
+        LOGGER.info(schoolClassService.findById(schoolClass.getId()));
+
+        schoolClass.setName("4B");
+        schoolClassService.update(schoolClass);
+        LOGGER.info(schoolClassService.findById(schoolClass.getId()));
+        schoolClassService.delete(schoolClass);
 
         TeacherService teacherService = new TeacherServiceImpl();
         SubjectService subjectService = new SubjectServiceImpl();
@@ -215,25 +250,24 @@ public class Main {
 
         // ClassTimetable
 
-//        ClassTimetable classTimetable = new ClassTimetable();
-//        SchoolDay cd = calendarDayService.findById(1L);
-//
-//        classTimetable.setSchoolClass(cd);
-//        classTimetable.setSchoolDays(cd);
-//        schoolDayService.findAll(Arrays.asList(lesson, lesson));
-//        schoolDayService.findAll();
-//
-////        classTimetableService.create(classTimetable);
-//
-//        System.out.println("\nclassTimetableService.findAll() - classTimetableService.CREATE\n");
-//        classTimetableService.findAll().forEach(ct -> {
-//            System.out.println("classTimetable=" + ct.getId() + " getCalendarDay=" + ct.getSchoolClass());
-//            ct.getSchoolDays().forEach(d -> {
-//                System.out.println(d.getCalendarDay());
-//                d.getLessons().forEach(l -> System.out.println(l.getTeacher().getSubject().getName()));
-//            });
-//        });
-//        System.out.println("------\n");
+        ClassTimetable classTimetable = new ClassTimetable();
+        SchoolDay cd = calendarDayService.findById(1L);
 
+        classTimetable.setSchoolClass(cd);
+        classTimetable.setSchoolDays(cd);
+        schoolDayService.findAll(Arrays.asList(lesson, lesson));
+        schoolDayService.findAll();
+
+        classTimetableService.create(classTimetable);
+
+        System.out.println("\nclassTimetableService.findAll() - classTimetableService.CREATE\n");
+        classTimetableService.findAll().forEach(ct -> {
+            System.out.println("classTimetable=" + ct.getId() + " getCalendarDay=" + ct.getSchoolClass());
+            ct.getSchoolDays().forEach(d -> {
+                System.out.println(d.getCalendarDay());
+                d.getLessons().forEach(l -> System.out.println(l.getTeacher().getSubject().getName()));
+            });
+        });
+        System.out.println("------\n");
     }
 }
