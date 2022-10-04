@@ -6,7 +6,6 @@ import java.util.Objects;
 public class SchoolTimetable {
 
     private Long id;
-    private int hashcode;
     private List<ClassTimetable> classTimetables;
 
     public Long getId() {
@@ -17,13 +16,6 @@ public class SchoolTimetable {
         this.id = id;
     }
 
-    public int getHashcode() {
-        return hashcode;
-    }
-
-    public void setHashcode(int hashcode) {
-        this.hashcode = hashcode;
-    }
 
     public List<ClassTimetable> getClassTimetables() {
         return classTimetables;
@@ -42,21 +34,18 @@ public class SchoolTimetable {
             return false;
         }
         SchoolTimetable that = (SchoolTimetable) o;
-        return hashcode == that.hashcode &&
-                Objects.equals(id, that.id) &&
-                Objects.equals(classTimetables, that.classTimetables);
+        return getId().equals(that.getId()) && getClassTimetables().equals(that.getClassTimetables());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, hashcode, classTimetables);
+        return Objects.hash(getId(), getClassTimetables());
     }
 
     @Override
     public String toString() {
         return "SchoolTimetable{" +
                 "id=" + id +
-                ", hashcode=" + hashcode +
                 ", classTimetables=" + classTimetables +
                 '}';
     }

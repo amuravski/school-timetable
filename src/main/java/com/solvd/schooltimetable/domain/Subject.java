@@ -1,11 +1,22 @@
 package com.solvd.schooltimetable.domain;
 
+import java.util.List;
 import java.util.Objects;
 
 public class Subject {
 
     private Long id;
     private String name;
+
+    private List<Teacher> teachers;
+
+    public List<Teacher> getTeachers() {
+        return teachers;
+    }
+
+    public void setTeachers(List<Teacher> teachers) {
+        this.teachers = teachers;
+    }
 
     public Subject() {
     }
@@ -44,8 +55,7 @@ public class Subject {
             return false;
         }
         Subject subject = (Subject) o;
-        return Objects.equals(id, subject.id) &&
-                Objects.equals(name, subject.name);
+        return Objects.equals(id, subject.id) && Objects.equals(name, subject.name);
     }
 
     @Override
@@ -53,6 +63,7 @@ public class Subject {
         return "Subject{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
+                ", teachers=" + teachers +
                 '}';
     }
 }

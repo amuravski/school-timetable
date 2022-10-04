@@ -4,8 +4,6 @@
     <resultMap id="TeacherResultMap" type="com.solvd.schooltimetable.domain.Teacher" autoMapping="false">
         <id property="id" column="teacher_id"/>
         <result property="fullName" column="teacher_full_name"/>
-        <association property="subject"
-                     resultMap="com.solvd.schooltimetable.persistence.SubjectRepository.SubjectResultMap"/>
     </resultMap>
 
     <sql id="fields">
@@ -32,6 +30,10 @@
     <select id="findById" resultMap="TeacherResultMap">
         <include refid="findAll"/>
         <![CDATA[ where t.id = #{id}; ]]>
+    </select>
+
+    <select id="findBySubjectId" resultMap="TeacherResultMap">
+        Select t.id as teacher_id, t.full_name as teacher_full_name, t.subject_id as subject  from Teachers t where t.subject_id = #{subjectID}
     </select>
 
     <insert id="create" keyProperty="id" useGeneratedKeys="true">

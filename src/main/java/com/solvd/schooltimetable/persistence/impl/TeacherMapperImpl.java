@@ -49,4 +49,12 @@ public class TeacherMapperImpl implements TeacherRepository {
             mapper.deleteById(id);
         }
     }
+
+    @Override
+    public List<Teacher> findBySubjectId(Long subjectId) {
+        try (SqlSession session = MybatisConfig.getSqlSessionFactory().openSession(true)) {
+            TeacherRepository mapper = session.getMapper(TeacherRepository.class);
+            return mapper.findBySubjectId(subjectId);
+        }
+    }
 }

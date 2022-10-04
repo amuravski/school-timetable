@@ -4,6 +4,7 @@
     <resultMap id="SubjectResultMap" type="com.solvd.schooltimetable.domain.Subject" autoMapping="false">
         <id property="id" column="subject_id"/>
         <result property="name" column="subject_name"/>
+        <collection property="teachers" resultMap="com.solvd.schooltimetable.persistence.TeacherRepository.TeacherResultMap"/>
     </resultMap>
 
     <sql id="fields">
