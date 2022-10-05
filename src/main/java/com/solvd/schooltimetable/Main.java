@@ -1,10 +1,14 @@
 package com.solvd.schooltimetable;
 
 import com.solvd.schooltimetable.domain.*;
+import com.solvd.schooltimetable.persistence.GenericAlgo;
 import com.solvd.schooltimetable.service.*;
 import com.solvd.schooltimetable.service.impl.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
 
@@ -64,5 +68,19 @@ public class Main {
         lessonService.update(lesson);
         LOGGER.info(lessonService.findById(lesson.getId()));
         lessonService.delete(lesson);
+
+        SchoolTimetable schoolTimetable = GenericAlgo.getRandomSchoolTimetable();
+        LOGGER.info(schoolTimetable);
+        List<SchoolTimetable> schoolTimetables = GenericAlgo.getPopulation();
+        LOGGER.info(schoolTimetables.size());
+        List<SchoolTimetable> schoolTimetables1 = new ArrayList<>();
+        schoolTimetables1.add(schoolTimetables.get(0));
+        schoolTimetables1.add(schoolTimetables.get(1));
+        schoolTimetables1.add(schoolTimetables.get(2));
+        schoolTimetables1.add(schoolTimetables.get(3));
+        schoolTimetables1.add(schoolTimetables.get(4));
+        schoolTimetables1.add(schoolTimetables.get(5));
+        List<SchoolTimetable> schoolTimetables2 = GenericAlgo.complementPopulation(schoolTimetables1);
+        LOGGER.info(schoolTimetables2.size());
     }
 }
