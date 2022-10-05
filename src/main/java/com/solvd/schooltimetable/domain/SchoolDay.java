@@ -6,6 +6,7 @@ import java.util.Objects;
 public class SchoolDay {
 
     private Long id;
+    private Long classTimetableId;
     private CalendarDay calendarDay;
     private List<Lesson> lessons;
 
@@ -15,6 +16,14 @@ public class SchoolDay {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getClassTimetableId() {
+        return classTimetableId;
+    }
+
+    public void setClassTimetableId(Long classTimetableId) {
+        this.classTimetableId = classTimetableId;
     }
 
     public CalendarDay getCalendarDay() {
@@ -43,21 +52,23 @@ public class SchoolDay {
         }
         SchoolDay schoolDay = (SchoolDay) o;
         return Objects.equals(id, schoolDay.id) &&
+                Objects.equals(classTimetableId, schoolDay.classTimetableId) &&
                 Objects.equals(calendarDay, schoolDay.calendarDay) &&
                 Objects.equals(lessons, schoolDay.lessons);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, calendarDay, lessons);
+        return Objects.hash(id, classTimetableId, calendarDay, lessons);
     }
 
     @Override
     public String toString() {
         return "SchoolDay{" +
                 "id=" + id +
+                ", classTimetableId=" + classTimetableId +
                 ", calendarDay=" + calendarDay +
-                ", lessons=" + lessons +
+                ", \nlessons=" + lessons +
                 '}';
     }
 }

@@ -4,12 +4,14 @@
     <resultMap id="LessonResultMap" type="com.solvd.schooltimetable.domain.Lesson" autoMapping="false">
         <id property="id" column="lesson_id"/>
         <result property="lessonNumber" column="lesson_number"/>
+        <result property="schoolDayId" column="lesson_school_day_id"/>
         <association property="teacher"
                      resultMap="com.solvd.schooltimetable.persistence.TeacherRepository.TeacherResultMap"/>
     </resultMap>
 
     <sql id="fields">
         l.id as lesson_id,
+        l.school_day_id as lesson_school_day_id,
         l.lesson_number as lesson_number
     </sql>
 
@@ -28,8 +30,8 @@
     </sql>
 
     <insert id="create" keyProperty="id" useGeneratedKeys="true">
-        insert into lessons (teacher_id, lesson_number)
-        values (#{teacher.id}, #{lessonNumber});
+        insert into lessons (teacher_id, lesson_number, school_day_id)
+        values (#{teacher.id}, #{lessonNumber}, #{schoolDayId});
     </insert>
 
     <select id="findAll" resultMap="LessonResultMap">
@@ -38,13 +40,14 @@
 
     <select id="findById" resultMap="LessonResultMap">
         <include refid="findAll"/>
-        <![CDATA[ where l.id = #{id}; ]]>
+        where l.id = #{id};
     </select>
 
     <update id="update">
         update lessons set
+        teacher_id = #{teacher.id},
         lesson_number = #{lessonNumber},
-        teacher_id = #{teacher.id}
+        school_day_id = #{schoolDayId}
         where id = #{id};
     </update>
 

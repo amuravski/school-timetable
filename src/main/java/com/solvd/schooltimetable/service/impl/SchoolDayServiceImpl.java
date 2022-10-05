@@ -4,6 +4,7 @@ import com.solvd.schooltimetable.domain.SchoolDay;
 import com.solvd.schooltimetable.domain.exception.EntityNotFoundException;
 import com.solvd.schooltimetable.persistence.SchoolDayRepository;
 import com.solvd.schooltimetable.persistence.impl.SchoolDayMapperImpl;
+import com.solvd.schooltimetable.service.LessonService;
 import com.solvd.schooltimetable.service.SchoolDayService;
 
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.List;
 public class SchoolDayServiceImpl implements SchoolDayService {
 
     private final SchoolDayRepository schoolDayRepository;
+    LessonService lessonService = new LessonServiceImpl();
 
     public SchoolDayServiceImpl() {
         this.schoolDayRepository = new SchoolDayMapperImpl();
@@ -19,6 +21,9 @@ public class SchoolDayServiceImpl implements SchoolDayService {
     @Override
     public void create(SchoolDay toCreate) {
         schoolDayRepository.create(toCreate);
+        toCreate.getLessons().stream()
+                .peek(lesson -> lesson.setSchoolDayId(toCreate.getId()))
+                .forEach(lesson -> lessonService.create(lesson));
     }
 
     @Override

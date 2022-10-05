@@ -5,6 +5,7 @@ import java.util.Objects;
 public class Lesson {
 
     private Long id;
+    private Long schoolDayId;
     private Integer lessonNumber;
     private Teacher teacher;
 
@@ -14,6 +15,14 @@ public class Lesson {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getSchoolDayId() {
+        return schoolDayId;
+    }
+
+    public void setSchoolDayId(Long schoolDayId) {
+        this.schoolDayId = schoolDayId;
     }
 
     public Integer getLessonNumber() {
@@ -42,19 +51,21 @@ public class Lesson {
         }
         Lesson lesson = (Lesson) o;
         return Objects.equals(id, lesson.id) &&
+                Objects.equals(schoolDayId, lesson.schoolDayId) &&
                 Objects.equals(lessonNumber, lesson.lessonNumber) &&
                 Objects.equals(teacher, lesson.teacher);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, lessonNumber, teacher);
+        return Objects.hash(id, schoolDayId, lessonNumber, teacher);
     }
 
     @Override
     public String toString() {
         return "Lesson{" +
                 "id=" + id +
+                ", schoolDayId=" + schoolDayId +
                 ", lessonNumber=" + lessonNumber +
                 ", teacher=" + teacher +
                 '}';
