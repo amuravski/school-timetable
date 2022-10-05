@@ -9,6 +9,13 @@ public class SchoolDay {
     private CalendarDay calendarDay;
     private List<Lesson> lessons;
 
+    public SchoolDay() {
+    }
+
+    public SchoolDay(CalendarDay calendarDay) {
+        this.calendarDay = calendarDay;
+    }
+
     public Long getId() {
         return id;
     }

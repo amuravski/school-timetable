@@ -16,8 +16,10 @@ public class GeneticAlgoConfig {
     private final int minLessons;
     private final int maxLessons;
     private final int populationSize;
-    private final int percentileThreshold;
+    private final int elitismPercentileThreshold;
+    private final int generationPercentileThreshold;
     private final boolean elitism;
+    private final int maxIterations;
 
     public GeneticAlgoConfig(String geneticAlgoConfigName) {
         Properties geneticAlgoConfigProperties = new Properties();
@@ -31,8 +33,10 @@ public class GeneticAlgoConfig {
         minLessons = Integer.parseInt(geneticAlgoConfigProperties.getProperty("minLessons"));
         maxLessons = Integer.parseInt(geneticAlgoConfigProperties.getProperty("maxLessons"));
         populationSize = Integer.parseInt(geneticAlgoConfigProperties.getProperty("populationSize"));
-        percentileThreshold = Integer.parseInt(geneticAlgoConfigProperties.getProperty("percentileThreshold"));
+        elitismPercentileThreshold = Integer.parseInt(geneticAlgoConfigProperties.getProperty("elitismPercentileThreshold"));
+        generationPercentileThreshold = Integer.parseInt(geneticAlgoConfigProperties.getProperty("generationPercentileThreshold"));
         elitism = Boolean.parseBoolean(geneticAlgoConfigProperties.getProperty("elitism"));
+        maxIterations = Integer.parseInt(geneticAlgoConfigProperties.getProperty("maxIterations"));
     }
 
     public int getMinWorkDays() {
@@ -43,20 +47,28 @@ public class GeneticAlgoConfig {
         return minLessons;
     }
 
+    public int getMaxLessons() {
+        return maxLessons;
+    }
+
     public int getPopulationSize() {
         return populationSize;
     }
 
-    public int getPercentileThreshold() {
-        return percentileThreshold;
+    public int getElitismPercentileThreshold() {
+        return elitismPercentileThreshold;
+    }
+
+    public int getGenerationPercentileThreshold() {
+        return generationPercentileThreshold;
     }
 
     public boolean isElitism() {
         return elitism;
     }
 
-    public int getMaxLessons() {
-        return maxLessons;
+    public int getMaxIterations() {
+        return maxIterations;
     }
 
     @Override
@@ -66,8 +78,10 @@ public class GeneticAlgoConfig {
                 ", minLessons=" + minLessons +
                 ", maxLessons=" + maxLessons +
                 ", populationSize=" + populationSize +
-                ", percentileThreshold=" + percentileThreshold +
+                ", elitismPercentileThreshold=" + elitismPercentileThreshold +
+                ", generationPercentileThreshold=" + generationPercentileThreshold +
                 ", elitism=" + elitism +
+                ", maxIterations=" + maxIterations +
                 '}';
     }
 }

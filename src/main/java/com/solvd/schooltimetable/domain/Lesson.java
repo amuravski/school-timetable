@@ -8,6 +8,13 @@ public class Lesson {
     private Integer lessonNumber;
     private Teacher teacher;
 
+    public Lesson() {
+    }
+
+    public Lesson(Teacher teacher) {
+        this.teacher = teacher;
+    }
+
     public Long getId() {
         return id;
     }

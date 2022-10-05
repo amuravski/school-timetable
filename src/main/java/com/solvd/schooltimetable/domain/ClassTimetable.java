@@ -9,6 +9,13 @@ public class ClassTimetable {
     private SchoolClass schoolClass;
     private List<SchoolDay> schoolDays;
 
+    public ClassTimetable() {
+    }
+
+    public ClassTimetable(SchoolClass schoolClass) {
+        this.schoolClass = schoolClass;
+    }
+
     public Long getId() {
         return id;
     }
