@@ -2,11 +2,9 @@ package com.solvd.schooltimetable.persistence;
 
 import com.solvd.schooltimetable.domain.*;
 import com.solvd.schooltimetable.service.CalendarDayService;
-import com.solvd.schooltimetable.service.ClassTimetableService;
 import com.solvd.schooltimetable.service.SchoolClassService;
 import com.solvd.schooltimetable.service.TeacherService;
 import com.solvd.schooltimetable.service.impl.CalendarDayServiceImpl;
-import com.solvd.schooltimetable.service.impl.ClassTimetableServiceImpl;
 import com.solvd.schooltimetable.service.impl.SchoolClassServiceImpl;
 import com.solvd.schooltimetable.service.impl.TeacherServiceImpl;
 
@@ -14,21 +12,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class GeneticAlgo {
 
-    private static GeneticAlgoConfig geneticAlgoConfig = new GeneticAlgoConfig("geneticAlgoConfig.properties");
+    private final GeneticAlgoConfig geneticAlgoConfig;
 
     public GeneticAlgo(GeneticAlgoConfig geneticAlgoConfig) {
-        GeneticAlgo.geneticAlgoConfig = geneticAlgoConfig;
+        this.geneticAlgoConfig = geneticAlgoConfig;
     }
 
-    public static SchoolTimetable getRandomSchoolTimetable() {
+    public SchoolTimetable getRandomSchoolTimetable() {
         Random rand = new Random();
         SchoolTimetable schoolTimetable = new SchoolTimetable();
         TeacherService teacherService = new TeacherServiceImpl();
         CalendarDayService calendarDayService = new CalendarDayServiceImpl();
-        ClassTimetableService classTimetableService = new ClassTimetableServiceImpl();
         SchoolClassService schoolClassService = new SchoolClassServiceImpl();
         List<SchoolClass> schoolClasses = schoolClassService.findAll();
         List<Teacher> teachers = teacherService.findAll();
@@ -60,20 +58,18 @@ public class GeneticAlgo {
         return schoolTimetable;
     }
 
-    public static List<SchoolTimetable> getPopulation() {
+    public List<SchoolTimetable> getPopulation() {
         List<SchoolTimetable> schoolTimetables = new ArrayList<>();
-        for (int i = 0; i < geneticAlgoConfig.getPopulationSize(); i++) {
-            schoolTimetables.add(getRandomSchoolTimetable());
-        }
+        IntStream.range(0, geneticAlgoConfig.getPopulationSize())
+                .forEach((i) -> schoolTimetables.add(getRandomSchoolTimetable()));
         return schoolTimetables;
     }
 
-    public static List<SchoolTimetable> complementPopulation(List<SchoolTimetable> schoolTimetables) {
+    public List<SchoolTimetable> complementPopulation(List<SchoolTimetable> schoolTimetables) {
         int currentPopulationSize = schoolTimetables.size();
         int complementPopulationSize = geneticAlgoConfig.getPopulationSize() - currentPopulationSize;
-        for (int i = 0; i < complementPopulationSize; i++) {
-            schoolTimetables.add(getRandomSchoolTimetable());
-        }
+        IntStream.range(0, complementPopulationSize)
+                .forEach((i) -> schoolTimetables.add(getRandomSchoolTimetable()));
         return schoolTimetables;
     }
 }
