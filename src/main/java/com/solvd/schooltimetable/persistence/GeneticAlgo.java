@@ -9,21 +9,18 @@ import com.solvd.schooltimetable.service.impl.CalendarDayServiceImpl;
 import com.solvd.schooltimetable.service.impl.ClassTimetableServiceImpl;
 import com.solvd.schooltimetable.service.impl.SchoolClassServiceImpl;
 import com.solvd.schooltimetable.service.impl.TeacherServiceImpl;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
-public class GenericAlgo {
+public class GeneticAlgo {
 
-    private static final Logger LOGGER = LogManager.getLogger(GenericAlgo.class);
     private static GeneticAlgoConfig geneticAlgoConfig = new GeneticAlgoConfig("geneticAlgoConfig.properties");
 
-    public GenericAlgo(GeneticAlgoConfig geneticAlgoConfig) {
-        GenericAlgo.geneticAlgoConfig = geneticAlgoConfig;
+    public GeneticAlgo(GeneticAlgoConfig geneticAlgoConfig) {
+        GeneticAlgo.geneticAlgoConfig = geneticAlgoConfig;
     }
 
     public static SchoolTimetable getRandomSchoolTimetable() {

@@ -1,7 +1,7 @@
 package com.solvd.schooltimetable;
 
 import com.solvd.schooltimetable.domain.*;
-import com.solvd.schooltimetable.persistence.GenericAlgo;
+import com.solvd.schooltimetable.persistence.GeneticAlgo;
 import com.solvd.schooltimetable.service.*;
 import com.solvd.schooltimetable.service.impl.*;
 import org.apache.logging.log4j.LogManager;
@@ -69,9 +69,9 @@ public class Main {
         LOGGER.info(lessonService.findById(lesson.getId()));
         lessonService.delete(lesson);
 
-        SchoolTimetable schoolTimetable = GenericAlgo.getRandomSchoolTimetable();
+        SchoolTimetable schoolTimetable = GeneticAlgo.getRandomSchoolTimetable();
         LOGGER.info(schoolTimetable);
-        List<SchoolTimetable> schoolTimetables = GenericAlgo.getPopulation();
+        List<SchoolTimetable> schoolTimetables = GeneticAlgo.getPopulation();
         LOGGER.info(schoolTimetables.size());
         List<SchoolTimetable> schoolTimetables1 = new ArrayList<>();
         schoolTimetables1.add(schoolTimetables.get(0));
@@ -80,7 +80,7 @@ public class Main {
         schoolTimetables1.add(schoolTimetables.get(3));
         schoolTimetables1.add(schoolTimetables.get(4));
         schoolTimetables1.add(schoolTimetables.get(5));
-        List<SchoolTimetable> schoolTimetables2 = GenericAlgo.complementPopulation(schoolTimetables1);
+        List<SchoolTimetable> schoolTimetables2 = GeneticAlgo.complementPopulation(schoolTimetables1);
         LOGGER.info(schoolTimetables2.size());
     }
 }
