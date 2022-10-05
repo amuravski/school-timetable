@@ -24,6 +24,7 @@
 
     <select id="findAll" resultMap="CalendarDayResultMap">
         <include refid="findAll"/>
+        <![CDATA[ order by cd.id; ]]>
     </select>
 
     <select id="findById" resultMap="CalendarDayResultMap">

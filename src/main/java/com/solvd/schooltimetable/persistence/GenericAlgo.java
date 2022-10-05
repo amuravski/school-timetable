@@ -14,8 +14,14 @@ import java.util.stream.Collectors;
 public class GenericAlgo {
 
     private static final Logger LOGGER = LogManager.getLogger(GenericAlgo.class);
+    private static GeneticAlgoConfig geneticAlgoConfig = new GeneticAlgoConfig("geneticAlgoConfig.properties");
 
-    public static SchoolTimetable getRandomSchoolTimetable(Integer minLesson, Integer maxLesson, Integer minWorkday) {
+    public GenericAlgo(GeneticAlgoConfig geneticAlgoConfig) {
+        GenericAlgo.geneticAlgoConfig = geneticAlgoConfig;
+    }
+
+    public static SchoolTimetable getRandomSchoolTimetable() {
+        Random rand = new Random();
         SchoolTimetable schoolTimetable = new SchoolTimetable();
         TeacherService teacherService = new TeacherServiceImpl();
         CalendarDayService calendarDayService = new CalendarDayServiceImpl();
@@ -24,59 +30,31 @@ public class GenericAlgo {
         SchoolClassService schoolClassService = new SchoolClassServiceImpl();
         List<SchoolClass> schoolClasses = schoolClassService.findAll();
         List<Subject> subjects = subjectService.findAll();
+        List<Teacher> teachers = teacherService.findAll();
+        List<CalendarDay> calendarDays = calendarDayService.findAll();
 
-        List<ClassTimetable> classTimetables = schoolClasses.stream()
-                    .map(schoolClass -> {
-                        List<SchoolDay> schoolDays = new ArrayList<>();
-                        for (int i = 0; i < minWorkday; i++) {
-                            SchoolDay schoolDay = new SchoolDay();
-                            switch (i+1) {
-                                case (2):
-                                    schoolDay.setCalendarDay(calendarDayService.findById(2L));
-                                    break;
-                                case (3):
-                                    schoolDay.setCalendarDay(calendarDayService.findById(3L));
-                                    break;
-                                case (4):
-                                    schoolDay.setCalendarDay(calendarDayService.findById(4L));
-                                    break;
-                                case (5):
-                                    schoolDay.setCalendarDay(calendarDayService.findById(5L));
-                                    break;
-                                case (6):
-                                    schoolDay.setCalendarDay(calendarDayService.findById(6L));
-                                    break;
-                                case (7):
-                                    schoolDay.setCalendarDay(calendarDayService.findById(7L));
-                                    break;
-                                default:
-                                    schoolDay.setCalendarDay(calendarDayService.findById(1L));
-                                    break;
-                            }
-                            int numberOfLesson = (int) (Math.random() * ((maxLesson - minLesson + 1) + minLesson));// generated also 0 and 1, so add the checking below
-                            if(numberOfLesson <2) {
-                                numberOfLesson = 2;
-                            }
-                            List<Lesson> lessons= new ArrayList<>();
-                            for (int j = 0; j < numberOfLesson; j++) {
-                                Random rand = new Random();
-                                Subject randomSubject = subjects.get(rand.nextInt(subjects.size()));
-                                List<Teacher> teachers = teacherService.findBySubjectId(randomSubject.getId());
-                                Teacher randomTeacher = teachers.get(rand.nextInt(teachers.size()));
-                                Lesson lesson = new Lesson();
-                                lesson.setLessonNumber(j+1);
-                                lesson.setTeacher(randomTeacher);
-                                lessons.add(lesson);
-                            }
-                            schoolDay.setLessons(lessons);
-                            schoolDays.add(schoolDay);
-                        }
-                        ClassTimetable classTimetable = new ClassTimetable();
-                        classTimetable.setSchoolClass(schoolClass);
-                        classTimetable.setSchoolDays(schoolDays);
-                        return classTimetable;
-                    })
-                    .collect(Collectors.toList());
+        List<ClassTimetable> classTimetables = schoolClasses.stream().map(schoolClass -> {
+            List<SchoolDay> schoolDays = new ArrayList<>();
+            for (int i = 0; i < geneticAlgoConfig.getMinWorkDays(); i++) {
+                SchoolDay schoolDay = new SchoolDay();
+                schoolDay.setCalendarDay(calendarDays.get(i));
+                int numberOfLesson = (int) (geneticAlgoConfig.getMinLessons() + Math.random() * (geneticAlgoConfig.getMaxLessons() - geneticAlgoConfig.getMinLessons() + 1));
+                List<Lesson> lessons = new ArrayList<>();
+                for (int j = 1; j < numberOfLesson + 1; j++) {
+                    Teacher randomTeacher = teachers.get(rand.nextInt(teachers.size()));
+                    Lesson lesson = new Lesson();
+                    lesson.setLessonNumber(j);
+                    lesson.setTeacher(randomTeacher);
+                    lessons.add(lesson);
+                }
+                schoolDay.setLessons(lessons);
+                schoolDays.add(schoolDay);
+            }
+            ClassTimetable classTimetable = new ClassTimetable();
+            classTimetable.setSchoolClass(schoolClass);
+            classTimetable.setSchoolDays(schoolDays);
+            return classTimetable;
+        }).collect(Collectors.toList());
         schoolTimetable.setClassTimetables(classTimetables);
         return schoolTimetable;
     }
