@@ -37,7 +37,9 @@ public class GeneticAlgo {
             for (int i = 0; i < geneticAlgoConfig.getMinWorkDays(); i++) {
                 SchoolDay schoolDay = new SchoolDay();
                 schoolDay.setCalendarDay(calendarDays.get(i));
-                int numberOfLesson = (int) (geneticAlgoConfig.getMinLessons() + Math.random() * (geneticAlgoConfig.getMaxLessons() - geneticAlgoConfig.getMinLessons() + 1));
+                int numberOfLesson = (int) (geneticAlgoConfig.getMinLessons() +
+                        Math.random() *
+                                (geneticAlgoConfig.getMaxLessons() - geneticAlgoConfig.getMinLessons() + 1));
                 List<Lesson> lessons = new ArrayList<>();
                 for (int j = 1; j < numberOfLesson + 1; j++) {
                     Teacher randomTeacher = teachers.get(rand.nextInt(teachers.size()));

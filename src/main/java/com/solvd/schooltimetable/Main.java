@@ -72,10 +72,10 @@ public class Main {
 
         GeneticAlgoConfig geneticAlgoConfig = new GeneticAlgoConfig("geneticAlgoConfig.properties");
         GeneticAlgo geneticAlgo = new GeneticAlgo(geneticAlgoConfig);
+        LOGGER.info(geneticAlgoConfig);
         SchoolTimetable schoolTimetable = geneticAlgo.getRandomSchoolTimetable();
         LOGGER.info(schoolTimetable);
         List<SchoolTimetable> schoolTimetables = geneticAlgo.getPopulation();
-        LOGGER.info(schoolTimetables.size());
         List<SchoolTimetable> schoolTimetables1 = new ArrayList<>();
         schoolTimetables1.add(schoolTimetables.get(0));
         schoolTimetables1.add(schoolTimetables.get(1));
@@ -84,6 +84,7 @@ public class Main {
         schoolTimetables1.add(schoolTimetables.get(4));
         schoolTimetables1.add(schoolTimetables.get(5));
         List<SchoolTimetable> schoolTimetables2 = geneticAlgo.complementPopulation(schoolTimetables1);
+        LOGGER.info(schoolTimetables.size());
         LOGGER.info(schoolTimetables2.size());
     }
 }
