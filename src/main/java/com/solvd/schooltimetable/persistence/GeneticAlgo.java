@@ -1,12 +1,6 @@
 package com.solvd.schooltimetable.persistence;
 
 import com.solvd.schooltimetable.domain.*;
-import com.solvd.schooltimetable.service.CalendarDayService;
-import com.solvd.schooltimetable.service.SchoolClassService;
-import com.solvd.schooltimetable.service.TeacherService;
-import com.solvd.schooltimetable.service.impl.CalendarDayServiceImpl;
-import com.solvd.schooltimetable.service.impl.SchoolClassServiceImpl;
-import com.solvd.schooltimetable.service.impl.TeacherServiceImpl;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -35,7 +29,6 @@ public class GeneticAlgo {
     }
 
     public List<SchoolTimetable> iterateGeneration(List<SchoolTimetable> population) {
-        Random random = new Random();
         List<SchoolTimetable> rated = getRatedPopulation(population);
         currentBest = rated.get(0);
         List<SchoolTimetable> newPopulation = new ArrayList<>();
@@ -66,7 +59,6 @@ public class GeneticAlgo {
                 newPopulation.add(offspring);
             }
         });
-        assert newPopulation.size()==120;
         complementPopulation(newPopulation);
         return newPopulation;
     }

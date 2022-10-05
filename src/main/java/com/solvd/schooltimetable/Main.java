@@ -1,8 +1,6 @@
 package com.solvd.schooltimetable;
 
-import com.solvd.schooltimetable.domain.CalendarDay;
-import com.solvd.schooltimetable.domain.SchoolClass;
-import com.solvd.schooltimetable.domain.Teacher;
+import com.solvd.schooltimetable.domain.*;
 import com.solvd.schooltimetable.persistence.GeneticAlgo;
 import com.solvd.schooltimetable.persistence.GeneticAlgoConfig;
 import com.solvd.schooltimetable.service.*;
@@ -10,7 +8,6 @@ import com.solvd.schooltimetable.service.impl.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -130,6 +127,7 @@ public class Main {
         schoolTimetableService.update(schoolTimetable);
         LOGGER.info("\nSchoolTimetable UPDATED\n" + schoolTimetableService.findById(schoolTimetable.getId()));
         schoolTimetableService.delete(schoolTimetable);
+
         GeneticAlgoConfig geneticAlgoConfig = new GeneticAlgoConfig("geneticAlgoConfig.properties");
         GeneticAlgo geneticAlgo = new GeneticAlgo(geneticAlgoConfig);
         List<SchoolClass> schoolClasses = schoolClassService.findAll();
