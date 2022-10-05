@@ -10,12 +10,24 @@
         insert into school_classes (name) values (#{name});
     </insert>
 
+    <sql id="fields">
+        sc.id as class_id,
+        sc.name as class_name
+    </sql>
+
+    <sql id="findAll">
+        select
+        <include refid="fields"/>
+        from school_classes sc
+    </sql>
+
     <select id="findAll" resultMap="SchoolClassResultMap">
-        select sc.id as class_id, sc.name as class_name from school_classes sc
+        <include refid="findAll"/>
     </select>
 
     <select id="findById" resultMap="SchoolClassResultMap">
-        select sc.id as class_id, sc.name as class_name from school_classes sc where sc.id = #{id};
+        <include refid="findAll"/>
+        where sc.id = #{id};
     </select>
 
     <update id="update">

@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Main {
@@ -22,6 +23,7 @@ public class Main {
         SchoolDayService schoolDayService = new SchoolDayServiceImpl();
         CalendarDayService calendarDayService = new CalendarDayServiceImpl();
         ClassTimetableService classTimetableService = new ClassTimetableServiceImpl();
+        SchoolTimetableService schoolTimetableService = new SchoolTimetableServiceImpl();
 
         CalendarDay calendarDay = new CalendarDay("TEST_CALENDAR_DAY");
         calendarDayService.create(calendarDay);
@@ -60,31 +62,71 @@ public class Main {
         teacherService.delete(teacher);
 
         Lesson lesson = new Lesson();
+        lesson.setSchoolDayId(1L);
         lesson.setLessonNumber(1);
         lesson.setTeacher(teacherService.findById(1L));
         lessonService.create(lesson);
-        LOGGER.info(lessonService.findById(lesson.getId()));
+        LOGGER.info("\nLESSON CREATED\n" + lessonService.findById(lesson.getId()));
+        lesson.setSchoolDayId(2L);
         lesson.setLessonNumber(2);
         lesson.setTeacher(teacherService.findById(2L));
         lessonService.update(lesson);
-        LOGGER.info(lessonService.findById(lesson.getId()));
+        LOGGER.info("\nLESSON UPDATED\n" + lessonService.findById(lesson.getId()));
         lessonService.delete(lesson);
 
-        GeneticAlgoConfig geneticAlgoConfig = new GeneticAlgoConfig("geneticAlgoConfig.properties");
-        GeneticAlgo geneticAlgo = new GeneticAlgo(geneticAlgoConfig);
-        LOGGER.info(geneticAlgoConfig);
-        SchoolTimetable schoolTimetable = geneticAlgo.getRandomSchoolTimetable();
-        LOGGER.info(schoolTimetable);
-        List<SchoolTimetable> schoolTimetables = geneticAlgo.getPopulation();
-        List<SchoolTimetable> schoolTimetables1 = new ArrayList<>();
-        schoolTimetables1.add(schoolTimetables.get(0));
-        schoolTimetables1.add(schoolTimetables.get(1));
-        schoolTimetables1.add(schoolTimetables.get(2));
-        schoolTimetables1.add(schoolTimetables.get(3));
-        schoolTimetables1.add(schoolTimetables.get(4));
-        schoolTimetables1.add(schoolTimetables.get(5));
-        List<SchoolTimetable> schoolTimetables2 = geneticAlgo.complementPopulation(schoolTimetables1);
-        LOGGER.info(schoolTimetables.size());
-        LOGGER.info(schoolTimetables2.size());
+        SchoolDay schoolDay = new SchoolDay();
+        schoolDay.setClassTimetableId(1L);
+        schoolDay.setCalendarDay(calendarDayService.findById(1L));
+        Lesson l1 = lessonService.findById(1L);
+        Lesson l2 = lessonService.findById(2L);
+        List<Lesson> lessons = (Arrays.asList(l1, l2));
+        schoolDay.setLessons(lessons);
+        schoolDayService.create(schoolDay);
+        LOGGER.info("\nSCHOOLDAY CREATED\n" + schoolDayService.findById(schoolDay.getId()));
+        schoolDay.setClassTimetableId(2L);
+        schoolDay.setCalendarDay(calendarDayService.findById(2L));
+        l1 = lessonService.findById(3L);
+        l2 = lessonService.findById(4L);
+        lessons = (Arrays.asList(l1, l2));
+        schoolDay.setLessons(lessons);
+        schoolDayService.update(schoolDay);
+        LOGGER.info("\nSCHOOLDAY UPDATED\n" + schoolDayService.findById(schoolDay.getId()));
+        schoolDayService.delete(schoolDay);
+
+        ClassTimetable classTimetable = new ClassTimetable();
+        classTimetable.setSchoolTimetableId(1L);
+        classTimetable.setSchoolClass(schoolClassService.findById(1L));
+        SchoolDay sd1 = schoolDayService.findById(1L);
+        SchoolDay sd2 = schoolDayService.findById(2L);
+        List<SchoolDay> schoolDays = (Arrays.asList(sd1, sd2));
+        classTimetable.setSchoolDays(schoolDays);
+        classTimetableService.create(classTimetable);
+        LOGGER.info("\nCLASSTIMETABLE CREATED\n" + classTimetableService.findById(classTimetable.getId()));
+        classTimetable.setSchoolTimetableId(2L);
+        classTimetable.setSchoolClass(schoolClassService.findById(1L));
+        sd1 = schoolDayService.findById(3L);
+        sd2 = schoolDayService.findById(4L);
+        schoolDays = (Arrays.asList(sd1, sd2));
+        classTimetable.setSchoolDays(schoolDays);
+        classTimetableService.update(classTimetable);
+        LOGGER.info("\nCLASSTIMETABLE UPDATED\n" + classTimetableService.findById(classTimetable.getId()));
+        classTimetableService.delete(classTimetable);
+
+        SchoolTimetable schoolTimetable = new SchoolTimetable();
+        schoolTimetable.setHashcode(1);
+        ClassTimetable ct1 = classTimetableService.findById(1L);
+        ClassTimetable ct2 = classTimetableService.findById(2L);
+        List<ClassTimetable> classTimetables = (Arrays.asList(ct1, ct2));
+        schoolTimetable.setClassTimetables(classTimetables);
+        schoolTimetableService.create(schoolTimetable);
+        LOGGER.info("\nSCHOOLTIMETABLE CREATED\n" + schoolTimetableService.findById(schoolTimetable.getId()));
+        schoolTimetable.setHashcode(2);
+        ct1 = classTimetableService.findById(3L);
+        ct2 = classTimetableService.findById(4L);
+        classTimetables = (Arrays.asList(ct1, ct2));
+        schoolTimetable.setClassTimetables(classTimetables);
+        schoolTimetableService.update(schoolTimetable);
+        LOGGER.info("\nSchoolTimetable UPDATED\n" + schoolTimetableService.findById(schoolTimetable.getId()));
+        schoolTimetableService.delete(schoolTimetable);
     }
 }

@@ -5,6 +5,7 @@ import com.solvd.schooltimetable.domain.exception.EntityNotFoundException;
 import com.solvd.schooltimetable.persistence.ClassTimetableRepository;
 import com.solvd.schooltimetable.persistence.impl.ClassTimetableMapperImpl;
 import com.solvd.schooltimetable.service.ClassTimetableService;
+import com.solvd.schooltimetable.service.SchoolDayService;
 
 import java.util.List;
 
@@ -12,13 +13,19 @@ public class ClassTimetableServiceImpl implements ClassTimetableService {
 
     private final ClassTimetableRepository classTimetableRepository;
 
+    SchoolDayService schoolDayService = new SchoolDayServiceImpl();
+
     public ClassTimetableServiceImpl() {
         this.classTimetableRepository = new ClassTimetableMapperImpl();
     }
 
     @Override
     public void create(ClassTimetable toCreate) {
+        System.out.println("toCreate.id " + toCreate.getId());
         classTimetableRepository.create(toCreate);
+        toCreate.getSchoolDays().stream()
+                .peek(schoolDay -> schoolDay.setClassTimetableId(toCreate.getId()))
+                .forEach(schoolDay -> schoolDayService.create(schoolDay));
     }
 
     @Override
@@ -35,6 +42,9 @@ public class ClassTimetableServiceImpl implements ClassTimetableService {
     @Override
     public void update(ClassTimetable toUpdate) {
         classTimetableRepository.update(toUpdate);
+        toUpdate.getSchoolDays().stream()
+                .peek(schoolDay -> schoolDay.setClassTimetableId(toUpdate.getId()))
+                .forEach(schoolDay -> schoolDayService.update(schoolDay));
     }
 
     @Override

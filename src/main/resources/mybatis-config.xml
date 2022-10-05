@@ -24,5 +24,7 @@
         <mapper resource="mapper/CalendarDayMapper.xml"/>
         <mapper resource="mapper/SubjectMapper.xml"/>
         <mapper resource="mapper/SchoolClassMapper.xml"/>
+        <mapper resource="mapper/ClassTimetableMapper.xml"/>
+        <mapper resource="mapper/SchoolTimetableMapper.xml"/>
     </mappers>
 </configuration>
