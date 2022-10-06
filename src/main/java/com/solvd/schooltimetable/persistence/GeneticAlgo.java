@@ -81,7 +81,7 @@ public class GeneticAlgo {
                 .flatMap(classTimetable -> classTimetable.getSchoolDays().stream())
                 .peek(schoolDay -> System.out.println(" S DAY " + schoolDay.getCalendarDay().getName()))
                 .flatMap(schoolDay -> schoolDay.getLessons().stream())
-                .peek(lesson -> System.out.println("  LES " + lesson.getLessonNumber() + " " + lesson.getTeacher().getFullName()))
+                .peek(lesson -> System.out.println("  LES " + lesson.getLessonNumber() + " " + lesson.getTeacher().getSubject().getName() + " " + lesson.getTeacher().getFullName()))
                 .collect(Collectors.toList());
 
         lessons.stream()
@@ -110,61 +110,80 @@ public class GeneticAlgo {
                             ));
                 });
 
-        List<Lesson> lessons1 = schoolTimetable.getClassTimetables().stream()
-                .peek(classTimetable -> System.out.println("CLASS TT " + classTimetable.getSchoolClass().getName()))
-                .filter(classTimetable -> classTimetable.getId().equals(1L))
-                .flatMap(classTimetable -> classTimetable.getSchoolDays().stream())
-                .peek(schoolDay -> System.out.println(" S DAY " + schoolDay.getCalendarDay().getName()))
-                .flatMap(schoolDay -> schoolDay.getLessons().stream())
-                .peek(lesson -> System.out.println("  LES " + lesson.getLessonNumber() + " " + lesson.getTeacher().getFullName()))
-                .collect(Collectors.toList());
+//        List<Lesson> lessons1 = schoolTimetable.getClassTimetables().stream()
+//                .peek(classTimetable -> System.out.println("CLASS TT " + classTimetable.getSchoolClass().getName()))
+//                .filter(classTimetable -> classTimetable.getId().equals(1L))
+//                .flatMap(classTimetable -> classTimetable.getSchoolDays().stream())
+//                .peek(schoolDay -> System.out.println(" S DAY " + schoolDay.getCalendarDay().getName()))
+//                .flatMap(schoolDay -> schoolDay.getLessons().stream())
+//                .peek(lesson -> System.out.println("  LES " + lesson.getLessonNumber() + " " + lesson.getTeacher().getFullName()))
+//                .collect(Collectors.toList());
 
-        List<Lesson> lessons2 = schoolTimetable.getClassTimetables().stream()
-                .peek(classTimetable -> System.out.println("CLASS TT " + classTimetable.getSchoolClass().getName()))
-                .filter(classTimetable -> classTimetable.getId().equals(2L))
-                .flatMap(classTimetable -> classTimetable.getSchoolDays().stream())
-                .peek(schoolDay -> System.out.println(" S DAY " + schoolDay.getCalendarDay().getName()))
-                .flatMap(schoolDay -> schoolDay.getLessons().stream())
-                .peek(lesson -> System.out.println("  LES " + lesson.getLessonNumber() + " " + lesson.getTeacher().getFullName()))
-                .collect(Collectors.toList());
+//        System.out.println("\nLESSONS1\n" + lessons1);
 
-        System.out.println("\nLESSONS1\n" + lessons1);
+        schoolTimetable.getClassTimetables().stream()
+                .peek(classTimetable -> System.out.println("\nCLASS TT " + classTimetable.getSchoolClass().getName()))
+                .flatMap(classTimetable -> {
 
-        List<Subject> subjectsAllOfClass1 =
-                lessons1.stream().
-                        map(lesson -> lesson.getTeacher().getSubject())
-                        .collect(Collectors.toList());
+                    List<Lesson> ls = classTimetable.getSchoolDays().stream()
+//                            .peek(schoolDay -> System.out.println(" S DAY " + schoolDay.getCalendarDay().getName()))
+                            .flatMap(schoolDay -> schoolDay.getLessons().stream())
+//                            .peek(lesson -> System.out.println("lesson id=" + lesson.getId()))
+                            .collect(Collectors.toList());
 
-        List<Subject> subjectsAllOfClass2 =
-                lessons2.stream().
-                        map(lesson -> lesson.getTeacher().getSubject())
-                        .collect(Collectors.toList());
+//                    System.out.println("\nLLLLL\n" + ls);
 
-        List<Subject> subjectsDistOfClass1 =
-                lessons1.stream().
-                        map(lesson -> lesson.getTeacher().getSubject())
-                        .distinct()
-                        .collect(Collectors.toList());
+                    List<Subject> subjectsAllOfClass = ls.stream().map(lesson -> lesson.getTeacher().getSubject())
+                            .collect(Collectors.toList());
 
-        List<Subject> subjectsDistOfClass2 =
-                lessons2.stream().
-                        map(lesson -> lesson.getTeacher().getSubject())
-                        .distinct()
-                        .collect(Collectors.toList());
+                    List<Subject> subjectsDistOfClass =
+                            ls.stream().
+                                    map(lesson -> lesson.getTeacher().getSubject())
+                                    .distinct()
+                                    .collect(Collectors.toList());
 
-        System.out.println("\n" + subjectsDistOfClass1);
-        System.out.println("\n" + subjectsDistOfClass2);
+                    System.out.println("\n SUM of subjects of class" +
+                            subjectsDistOfClass.stream().
+                                    map(subject -> {
+                                        return
+                                                subjectsAllOfClass.stream()
+                                                        .filter(subject1 -> subject1.equals(subject)).count();
+                                    })
+                                    .collect(Collectors.toList())
+                    );
+                            return null;
+                        }
+                ).count();
 
-        System.out.println( "\n SUM of subjects of class" +
-        subjectsDistOfClass1.stream().
-                map(subject -> { return
-            subjectsAllOfClass1.stream()
-                    .filter(subject1 -> subject1.equals(subject)).count();
-        })
-                .collect(Collectors.toList())
-        );
+
+//                    List<Subject> subjectsAllOfClass = schoolDay.getLessons().stream().map(lesson -> lesson.getTeacher().getSubject())
+//                            .collect(Collectors.toList());
+//
+//                    List<Subject> subjectsDistOfClass =
+//                            schoolDay.getLessons().stream().
+//                                    map(lesson -> lesson.getTeacher().getSubject())
+//                                    .distinct()
+//                                    .collect(Collectors.toList());
+//
+//                    System.out.println( "\n SUM of subjects of class" +
+//                            subjectsDistOfClass.stream().
+//                                    map(subject -> { return
+//                                            subjectsAllOfClass.stream()
+//                                                    .filter(subject1 -> subject1.equals(subject)).count();
+//                                    })
+//                                    .collect(Collectors.toList())
+//                    );
+//                }).count();
+
+//        List<Integer> subjectCounts = (Arrays.asList(3, 4, 5, 7));
+//        System.out.println(std(subjectCounts));
 
         return 0.;
+}
+
+    public Double std(List<Integer> subjectCounts) {
+        System.out.println("STD " + std(subjectCounts));
+        return null;
     }
 
     public SchoolTimetable getOffspring(SchoolTimetable p1, SchoolTimetable p2) {
