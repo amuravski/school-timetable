@@ -95,6 +95,7 @@ public class GeneticAlgo {
             newPopulation.addAll(rated.subList(0,
                     population.size() / 100 * geneticAlgoConfig.getElitismPercentileThreshold()));
         }
+        //todo private final List<Double> historicalAvgPopulationFitness
         List<SchoolTimetable> willCross = rated.stream()
                 .filter(schoolTimetable -> getFitness(schoolTimetable) >= 0.)
                 .limit(population.size() / 100 * geneticAlgoConfig.getGenerationPercentileThreshold())
