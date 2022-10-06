@@ -54,7 +54,7 @@ public class SchoolTimetable {
 
     @Override
     public String toString() {
-        return "SchoolTimetable{" +
+        return "\n\nSchoolTimetable{" +
                 "id=" + id +
                 ", hashcode=" + hashcode +
                 ", classTimetables=" + classTimetables +

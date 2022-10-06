@@ -50,7 +50,7 @@ public class Subject {
 
     @Override
     public String toString() {
-        return "Subject{" +
+        return "\nSubject{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 '}';

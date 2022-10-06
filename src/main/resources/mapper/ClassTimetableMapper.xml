@@ -44,6 +44,7 @@
 
     <select id="findAll" resultMap="ClassTimetableResultMap">
         <include refid="findAll"/>
+        order by st.id, sc.id, sd.id, l.id
     </select>
 
     <select id="findById" resultMap="ClassTimetableResultMap">

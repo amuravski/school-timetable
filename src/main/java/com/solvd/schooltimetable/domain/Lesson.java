@@ -70,7 +70,7 @@ public class Lesson {
 
     @Override
     public String toString() {
-        return "Lesson{" +
+        return "\n  Lesson{" +
                 "id=" + id +
                 ", schoolDayId=" + schoolDayId +
                 ", lessonNumber=" + lessonNumber +

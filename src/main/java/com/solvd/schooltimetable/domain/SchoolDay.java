@@ -1,9 +1,14 @@
 package com.solvd.schooltimetable.domain;
 
+import com.solvd.schooltimetable.service.CalendarDayService;
+import com.solvd.schooltimetable.service.impl.CalendarDayServiceImpl;
+
 import java.util.List;
 import java.util.Objects;
 
 public class SchoolDay {
+
+    CalendarDayService calendarDayService = new CalendarDayServiceImpl();
 
     private Long id;
     private Long classTimetableId;
@@ -71,9 +76,9 @@ public class SchoolDay {
 
     @Override
     public String toString() {
-        return "SchoolDay{" +
+        return "\nSchoolDay{" +
                 "id=" + id +
-                ", classTimetableId=" + classTimetableId +
+                ", classTimetableId=" + classTimetableId + " " + calendarDayService.findById(classTimetableId).getName() +
                 ", calendarDay=" + calendarDay +
                 ", \nlessons=" + lessons +
                 '}';
