@@ -1,8 +1,10 @@
 package com.solvd.schooltimetable.persistence;
 
+import com.solvd.schooltimetable.DoubleStatistics;
 import com.solvd.schooltimetable.domain.*;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -21,11 +23,68 @@ public class GeneticAlgo {
     public void run() {
         List<SchoolTimetable> population = getPopulation();
         for (int i = 0; i < geneticAlgoConfig.getMaxIterations(); i++) {
-            if (getFitness(currentBest) == Double.POSITIVE_INFINITY) {
+            if (i != 0 && getFitness(currentBest) == Double.POSITIVE_INFINITY) {
                 return;
             }
             population = iterateGeneration(population);
         }
+    }
+
+//    public Double getFitness(SchoolTimetable schoolTimetable) {
+//        if (!isNoParallelTeachers(schoolTimetable)) {
+//            return Double.NEGATIVE_INFINITY;
+//        }
+//        return 0.;
+//        if (один учитель ведет урок у разных классов
+//        или
+//        число предметов в дне не отвечает критериям из конфига(а такое может быть?)){
+//            return Double.NEGATIVE_INFINITY;
+//        }
+//        return 1 / сумма(стандартное отклонение(количество уроков по каждому предмету в учебной неделе для каждого класса));
+    //}
+
+//    private List<Integer> countLessonsBySubject(ClassTimetable classTimetable) {
+//
+//    }
+
+    private Double getFitness(SchoolTimetable schoolTimetable) {
+        List<List<Lesson>> lessons = schoolTimetable.getClassTimetables().stream()
+                .map(ClassTimetable::getSchoolDays).map(schoolDays ->
+                        schoolDays.stream().flatMap(schoolDay -> schoolDay.getLessons().stream()).collect(Collectors.toList())
+                ).collect(Collectors.toList());
+        for (int i = 0; i < lessons.size() - 1; i++) {
+            for (int j = i + 1; j < lessons.size(); j++) {
+                int ic = 0;
+                int jc = 0;
+                while (ic < lessons.get(i).size() && jc < lessons.get(j).size()) {
+                    if (lessons.get(i).get(ic).getLessonNumber() < lessons.get(j).get(jc).getLessonNumber()) {
+                        jc++;
+                        continue;
+                    }
+                    if (lessons.get(i).get(ic).getLessonNumber() > lessons.get(j).get(jc).getLessonNumber()) {
+                        ic++;
+                        continue;
+                    }
+                    if (lessons.get(i).get(ic).getTeacher().equals(lessons.get(j).get(jc).getTeacher())) {
+                        return Double.NEGATIVE_INFINITY;
+                    }
+                    ic++;
+                    jc++;
+                }
+            }
+        }
+        return 1 / lessons.stream()
+                .map(lessons1 -> lessons1.stream()
+                        .map(lesson -> lesson.getTeacher().getSubject()).collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+                ).map(subjectLongMap -> computeStandardDeviation(subjectLongMap.values()))
+                .reduce(Double::sum).get();
+    }
+
+    private double computeStandardDeviation(Collection<Long> collection) {
+        return collection.stream()
+                .map(Number::doubleValue)
+                .collect(DoubleStatistics.collector())
+                .getStandardDeviation();
     }
 
     public List<SchoolTimetable> iterateGeneration(List<SchoolTimetable> population) {
@@ -40,6 +99,7 @@ public class GeneticAlgo {
                 .filter(schoolTimetable -> getFitness(schoolTimetable) >= 0.)
                 .limit(population.size() / 100 * geneticAlgoConfig.getGenerationPercentileThreshold())
                 .collect(Collectors.toList());
+        System.out.println(willCross.size());
         List<SchoolTimetable> shuffledWillCross = new ArrayList<>(willCross);
         Collections.shuffle(shuffledWillCross);
         int lastElementIndex = willCross.size() - 1;
@@ -68,10 +128,6 @@ public class GeneticAlgo {
                 .collect(Collectors
                         .toMap(schoolTimetable -> schoolTimetable, this::getFitness, (u, v) -> u, HashMap::new)))
                 .keySet());
-    }
-
-    public double getFitness(SchoolTimetable schoolTimetable) {
-        return 0.;
     }
 
     public SchoolTimetable getOffspring(SchoolTimetable p1, SchoolTimetable p2) {
