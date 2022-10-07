@@ -1,4 +1,4 @@
-package com.solvd.schooltimetable;
+package com.solvd.schooltimetable.util;
 
 import java.util.DoubleSummaryStatistics;
 import java.util.stream.Collector;
@@ -6,9 +6,12 @@ import java.util.stream.Collector;
 public class DoubleStatistics extends DoubleSummaryStatistics {
 
     private double sumOfSquare = 0.0d;
-    private double sumOfSquareCompensation; // Low order bits of sum
-    private double simpleSumOfSquare; // Used to compute right sum for
-    // non-finite inputs
+    private double sumOfSquareCompensation;
+    private double simpleSumOfSquare;
+
+    public static Collector<Double, ?, DoubleStatistics> collector() {
+        return Collector.of(DoubleStatistics::new, DoubleStatistics::accept, DoubleStatistics::combine);
+    }
 
     @Override
     public void accept(double value) {
@@ -28,7 +31,7 @@ public class DoubleStatistics extends DoubleSummaryStatistics {
 
     private void sumOfSquareWithCompensation(double value) {
         double tmp = value - sumOfSquareCompensation;
-        double velvel = sumOfSquare + tmp; // Little wolf of rounding error
+        double velvel = sumOfSquare + tmp;
         sumOfSquareCompensation = (velvel - sumOfSquare) - tmp;
         sumOfSquare = velvel;
     }
@@ -46,10 +49,6 @@ public class DoubleStatistics extends DoubleSummaryStatistics {
         double sumOfSquare = getSumOfSquare();
         double average = getAverage();
         return count > 0 ? Math.sqrt((sumOfSquare - count * Math.pow(average, 2)) / (count - 1)) : 0.0d;
-    }
-
-    public static Collector<Double, ?, DoubleStatistics> collector() {
-        return Collector.of(DoubleStatistics::new, DoubleStatistics::accept, DoubleStatistics::combine);
     }
 
 }

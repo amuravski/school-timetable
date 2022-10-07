@@ -1,7 +1,7 @@
-package com.solvd.schooltimetable.persistence;
+package com.solvd.schooltimetable.genetic;
 
-import com.solvd.schooltimetable.DoubleStatistics;
 import com.solvd.schooltimetable.domain.*;
+import com.solvd.schooltimetable.util.DoubleStatistics;
 
 import java.util.*;
 import java.util.function.Function;
@@ -11,16 +11,24 @@ import java.util.stream.IntStream;
 public class GeneticAlgo {
 
     private final GeneticAlgoConfig geneticAlgoConfig;
+    private final List<Double> historicalAverageFitness;
     private List<SchoolClass> schoolClasses;
     private List<Teacher> teachers;
     private List<CalendarDay> calendarDays;
     private SchoolTimetable currentBest;
     private double currentBestFitness;
-    private List<Double> historicalAverageFitness;
 
     public GeneticAlgo(GeneticAlgoConfig geneticAlgoConfig) {
         this.geneticAlgoConfig = geneticAlgoConfig;
         historicalAverageFitness = new ArrayList<>();
+    }
+
+    public SchoolTimetable getCurrentBest() {
+        return currentBest;
+    }
+
+    public double getCurrentBestFitness() {
+        return currentBestFitness;
     }
 
     public void run() {
@@ -31,11 +39,6 @@ public class GeneticAlgo {
             }
             population = iterateGeneration(population);
         }
-        System.out.println(historicalAverageFitness);
-    }
-
-    public double getCurrentBestFitness() {
-        return currentBestFitness;
     }
 
     private Double getFitness(SchoolTimetable schoolTimetable) {
@@ -71,14 +74,7 @@ public class GeneticAlgo {
                 .reduce(Double::sum).get();
     }
 
-    private double computeStandardDeviation(Collection<Long> collection) {
-        return collection.stream()
-                .map(Number::doubleValue)
-                .collect(DoubleStatistics.collector())
-                .getStandardDeviation();
-    }
-
-    public List<SchoolTimetable> iterateGeneration(List<SchoolTimetable> population) {
+    private List<SchoolTimetable> iterateGeneration(List<SchoolTimetable> population) {
         List<SchoolTimetable> rated = getRatedPopulation(population);
         currentBest = rated.get(0);
         currentBestFitness = getFitness(rated.get(0));
@@ -114,7 +110,7 @@ public class GeneticAlgo {
         return newPopulation;
     }
 
-    public List<SchoolTimetable> getRatedPopulation(List<SchoolTimetable> population) {
+    private List<SchoolTimetable> getRatedPopulation(List<SchoolTimetable> population) {
         Map<SchoolTimetable, Double> sortedMap = sortMapByValue(population
                 .stream()
                 .collect(Collectors.toMap(schoolTimetable -> schoolTimetable, this::getFitness, (u, v) -> u, HashMap::new)));
@@ -127,7 +123,7 @@ public class GeneticAlgo {
         return new ArrayList<>(sortedMap.keySet());
     }
 
-    public SchoolTimetable getOffspring(SchoolTimetable p1, SchoolTimetable p2) {
+    private SchoolTimetable getOffspring(SchoolTimetable p1, SchoolTimetable p2) {
         SchoolTimetable offspring = new SchoolTimetable();
         offspring.setClassTimetables(new ArrayList<>());
         List<ClassTimetable> p1TimeTables = p1.getClassTimetables();
@@ -140,7 +136,7 @@ public class GeneticAlgo {
         return offspring;
     }
 
-    public SchoolTimetable getRandomSchoolTimetable() {
+    private SchoolTimetable getRandomSchoolTimetable() {
         SchoolTimetable result = new SchoolTimetable();
         List<ClassTimetable> classTimetables = schoolClasses.stream().map(schoolClass -> {
             Random rand = new Random();
@@ -170,7 +166,7 @@ public class GeneticAlgo {
         return result;
     }
 
-    public List<SchoolTimetable> getPopulation() {
+    private List<SchoolTimetable> getPopulation() {
         List<SchoolTimetable> schoolTimetables = new ArrayList<>();
         for (int i = 0; i < geneticAlgoConfig.getPopulationSize(); i++) {
             schoolTimetables.add(getRandomSchoolTimetable());
@@ -178,7 +174,7 @@ public class GeneticAlgo {
         return schoolTimetables;
     }
 
-    public void complementPopulation(List<SchoolTimetable> schoolTimetables) {
+    private void complementPopulation(List<SchoolTimetable> schoolTimetables) {
         int currentPopulationSize = schoolTimetables.size();
         int complementPopulationSize = geneticAlgoConfig.getPopulationSize() - currentPopulationSize;
         IntStream.range(0, complementPopulationSize)
@@ -236,6 +232,13 @@ public class GeneticAlgo {
         }
         offspring.setLessons(offspringLessons);
         return offspring;
+    }
+
+    private double computeStandardDeviation(Collection<Long> collection) {
+        return collection.stream()
+                .map(Number::doubleValue)
+                .collect(DoubleStatistics.collector())
+                .getStandardDeviation();
     }
 
     private <K, V extends Comparable<? super V>> Map<K, V> sortMapByValue(Map<K, V> map) {
