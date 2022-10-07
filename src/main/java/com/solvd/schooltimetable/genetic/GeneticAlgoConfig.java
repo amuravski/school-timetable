@@ -13,16 +13,16 @@ public class GeneticAlgoConfig {
 
     private static final Logger LOGGER = LogManager.getLogger(GeneticAlgoConfig.class);
 
-    private final int minWorkDays;
-    private final int minLessons;
-    private final int maxLessons;
-    private final int populationSize;
-    private final int elitismPercentileThreshold;
-    private final int generationPercentileThreshold;
-    private final boolean elitism;
-    private final int maxIterations;
-    boolean lucky;
-    int luckyPercentileThreshold;
+    private int minWorkDays;
+    private int minLessons;
+    private int maxLessons;
+    private int populationSize;
+    private int elitismPercentileThreshold;
+    private int generationPercentileThreshold;
+    private boolean elitism;
+    private int maxIterations;
+    private boolean lucky;
+    private int luckyPercentileThreshold;
 
     public GeneticAlgoConfig(String geneticAlgoConfigName) {
         Properties geneticAlgoConfigProperties = new Properties();
@@ -46,32 +46,64 @@ public class GeneticAlgoConfig {
         return minWorkDays;
     }
 
+    public void setMinWorkDays(int minWorkDays) {
+        this.minWorkDays = minWorkDays;
+    }
+
     public int getMinLessons() {
         return minLessons;
+    }
+
+    public void setMinLessons(int minLessons) {
+        this.minLessons = minLessons;
     }
 
     public int getMaxLessons() {
         return maxLessons;
     }
 
+    public void setMaxLessons(int maxLessons) {
+        this.maxLessons = maxLessons;
+    }
+
     public int getPopulationSize() {
         return populationSize;
+    }
+
+    public void setPopulationSize(int populationSize) {
+        this.populationSize = populationSize;
     }
 
     public int getElitismPercentileThreshold() {
         return elitismPercentileThreshold;
     }
 
+    public void setElitismPercentileThreshold(int elitismPercentileThreshold) {
+        this.elitismPercentileThreshold = elitismPercentileThreshold;
+    }
+
     public int getGenerationPercentileThreshold() {
         return generationPercentileThreshold;
+    }
+
+    public void setGenerationPercentileThreshold(int generationPercentileThreshold) {
+        this.generationPercentileThreshold = generationPercentileThreshold;
     }
 
     public boolean isElitism() {
         return elitism;
     }
 
+    public void setElitism(boolean elitism) {
+        this.elitism = elitism;
+    }
+
     public int getMaxIterations() {
         return maxIterations;
+    }
+
+    public void setMaxIterations(int maxIterations) {
+        this.maxIterations = maxIterations;
     }
 
     public boolean isLucky() {
