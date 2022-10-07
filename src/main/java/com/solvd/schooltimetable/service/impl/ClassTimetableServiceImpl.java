@@ -21,7 +21,6 @@ public class ClassTimetableServiceImpl implements ClassTimetableService {
 
     @Override
     public void create(ClassTimetable toCreate) {
-        System.out.println("toCreate.id " + toCreate.getId());
         classTimetableRepository.create(toCreate);
         toCreate.getSchoolDays().stream()
                 .peek(schoolDay -> schoolDay.setClassTimetableId(toCreate.getId()))
