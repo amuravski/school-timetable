@@ -22,7 +22,6 @@ public class SchoolTimetableServiceImpl implements SchoolTimetableService {
     @Override
     public void create(SchoolTimetable toCreate) {
         schoolTimetableRepository.create(toCreate);
-        System.out.println("toCreate.id " + toCreate.getId());
         toCreate.getClassTimetables().stream()
                 .peek(classTimetable -> classTimetable.setSchoolTimetableId(toCreate.getId()))
                 .forEach(classTimetable -> classTimetableService.create(classTimetable));

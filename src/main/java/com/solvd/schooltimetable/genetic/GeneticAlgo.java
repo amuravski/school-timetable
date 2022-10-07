@@ -27,6 +27,14 @@ public class GeneticAlgo {
         return currentBest;
     }
 
+    public GeneticAlgoConfig getGeneticAlgoConfig() {
+        return geneticAlgoConfig;
+    }
+
+    public List<Double> getHistoricalAverageFitness() {
+        return historicalAverageFitness;
+    }
+
     public double getCurrentBestFitness() {
         return currentBestFitness;
     }
@@ -100,14 +108,16 @@ public class GeneticAlgo {
         if (willCross.get(lastElementIndex).equals(shuffledWillCross.get(lastElementIndex))) {
             shuffledWillCross.add(0, shuffledWillCross.remove(lastElementIndex));
         }
-        List<SchoolTimetable> luckys = new ArrayList<>(population);
-        luckys.removeAll(newPopulation);
-        luckys.removeAll(willCross);
-        Collections.shuffle(population);
-        newPopulation.addAll(luckys.stream()
-                .limit(population.size() / 100 * geneticAlgoConfig.getLuckyPercentileThreshold())
-                .map(lucky -> getOffspring(lucky, shuffledWillCross.get((int) (Math.random() * shuffledWillCross.size()))))
-                .collect(Collectors.toList()));
+        if (geneticAlgoConfig.isLucky()) {
+            List<SchoolTimetable> luckys = new ArrayList<>(population);
+            luckys.removeAll(newPopulation);
+            luckys.removeAll(willCross);
+            Collections.shuffle(population);
+            newPopulation.addAll(luckys.stream()
+                    .limit(population.size() / 100 * geneticAlgoConfig.getLuckyPercentileThreshold())
+                    .map(lucky -> getOffspring(lucky, shuffledWillCross.get((int) (Math.random() * shuffledWillCross.size()))))
+                    .collect(Collectors.toList()));
+        }
         willCross.forEach(firstParent -> {
             if (shuffledWillCross.size() > 0) {
                 SchoolTimetable secondParent;

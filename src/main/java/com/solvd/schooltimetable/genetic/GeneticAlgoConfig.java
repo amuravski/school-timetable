@@ -40,6 +40,8 @@ public class GeneticAlgoConfig {
         generationPercentileThreshold = Integer.parseInt(geneticAlgoConfigProperties.getProperty("generationPercentileThreshold"));
         elitism = Boolean.parseBoolean(geneticAlgoConfigProperties.getProperty("elitism"));
         maxIterations = Integer.parseInt(geneticAlgoConfigProperties.getProperty("maxIterations"));
+        lucky = Boolean.parseBoolean(geneticAlgoConfigProperties.getProperty("lucky"));
+        luckyPercentileThreshold = Integer.parseInt(geneticAlgoConfigProperties.getProperty("luckyPercentileThreshold"));
     }
 
     public int getMinWorkDays() {

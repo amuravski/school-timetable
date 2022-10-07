@@ -48,6 +48,7 @@ public class Main {
                     i.setTeachers(teachers);
                     i.setCalendarDays(calendarDays);
                     i.run();
+                    LOGGER.info(i.getHistoricalAverageFitness());
                     return i.getCurrentBestFitness();
                 })
                 .filter(Double::isFinite)
