@@ -33,13 +33,9 @@ public class GeneticAlgo {
         currentBest = rated.get(0);
         List<SchoolTimetable> newPopulation = new ArrayList<>();
         if (geneticAlgoConfig.isElitism()) {
-            newPopulation.addAll(rated.subList(0,
-                    population.size() / 100 * geneticAlgoConfig.getElitismPercentileThreshold()));
+            newPopulation.addAll(rated.subList(0, population.size() / 100 * geneticAlgoConfig.getElitismPercentileThreshold()));
         }
-        List<SchoolTimetable> willCross = rated.stream()
-                .filter(schoolTimetable -> getFitness(schoolTimetable) >= 0.)
-                .limit(population.size() / 100 * geneticAlgoConfig.getGenerationPercentileThreshold())
-                .collect(Collectors.toList());
+        List<SchoolTimetable> willCross = rated.stream().filter(schoolTimetable -> getFitness(schoolTimetable) >= 0.).limit(population.size() / 100 * geneticAlgoConfig.getGenerationPercentileThreshold()).collect(Collectors.toList());
         List<SchoolTimetable> shuffledWillCross = new ArrayList<>(willCross);
         Collections.shuffle(shuffledWillCross);
         int lastElementIndex = willCross.size() - 1;
@@ -64,10 +60,7 @@ public class GeneticAlgo {
     }
 
     public List<SchoolTimetable> getRatedPopulation(List<SchoolTimetable> population) {
-        return new ArrayList<>(sortMapByValue(population.stream()
-                .collect(Collectors
-                        .toMap(schoolTimetable -> schoolTimetable, this::getFitness, (u, v) -> u, HashMap::new)))
-                .keySet());
+        return new ArrayList<>(sortMapByValue(population.stream().collect(Collectors.toMap(schoolTimetable -> schoolTimetable, this::getFitness, (u, v) -> u, HashMap::new))).keySet());
     }
 
     public double getFitness(SchoolTimetable schoolTimetable) {
@@ -95,9 +88,7 @@ public class GeneticAlgo {
             for (int i = 0; i < geneticAlgoConfig.getMinWorkDays(); i++) {
                 SchoolDay schoolDay = new SchoolDay();
                 schoolDay.setCalendarDay(calendarDays.get(i));
-                int numberOfLessons = (int) (geneticAlgoConfig.getMinLessons() +
-                        Math.random() *
-                                (geneticAlgoConfig.getMaxLessons() - geneticAlgoConfig.getMinLessons() + 1));
+                int numberOfLessons = (int) (geneticAlgoConfig.getMinLessons() + Math.random() * (geneticAlgoConfig.getMaxLessons() - geneticAlgoConfig.getMinLessons() + 1));
                 List<Lesson> lessons = new ArrayList<>();
                 for (int j = 1; j < numberOfLessons + 1; j++) {
                     Teacher randomTeacher = teachers.get(rand.nextInt(teachers.size()));
@@ -128,8 +119,7 @@ public class GeneticAlgo {
     public void complementPopulation(List<SchoolTimetable> schoolTimetables) {
         int currentPopulationSize = schoolTimetables.size();
         int complementPopulationSize = geneticAlgoConfig.getPopulationSize() - currentPopulationSize;
-        IntStream.range(0, complementPopulationSize)
-                .forEach((i) -> schoolTimetables.add(getRandomSchoolTimetable()));
+        IntStream.range(0, complementPopulationSize).forEach((i) -> schoolTimetables.add(getRandomSchoolTimetable()));
     }
 
     public List<SchoolClass> getSchoolClasses() {
@@ -178,27 +168,33 @@ public class GeneticAlgo {
         int lessonNumber = 1;
         for (i = 0; i < Integer.min(p1Lessons.size(), p2Lessons.size()); i++) {
             Lesson lesson = new Lesson((random.nextBoolean() ? p1Lessons.get(i) : p2Lessons.get(i)).getTeacher());
-            lesson.setLessonNumber(lessonNumber);
-            offspringLessons.add(lesson);
-            lessonNumber++;
-        }
-        if (p1Lessons.size() != p2Lessons.size()) {
-            List<Lesson> biggerDay = p1Lessons.size() > p2Lessons.size() ? p1Lessons : p2Lessons;
-            for (; i < biggerDay.size(); i++) {
-                if (random.nextBoolean()) {
-                    Lesson lesson = new Lesson(biggerDay.get(i).getTeacher());
-                    lesson.setLessonNumber(lessonNumber);
-                    offspringLessons.add(lesson);
-                    lessonNumber++;
-                }
-            }
-        }
-        if (geneticAlgoConfig.isMutations()) {
-            for (i = 0; i < offspringLessons.size(); i++) {
+            if (geneticAlgoConfig.isMutations()) {
                 int chance = random.nextInt((100));
                 if (chance <= geneticAlgoConfig.getMutationChance()) {
                     Teacher randomTeacher = teachers.get(random.nextInt(teachers.size()));
-                    offspringLessons.get(i).setTeacher(randomTeacher);
+                    lesson.setTeacher(randomTeacher);
+                }
+            }
+            lesson.setLessonNumber(i);
+            offspringLessons.add(lesson);
+            lessonNumber++;
+        }
+
+        if (p1Lessons.size() != p2Lessons.size()) {
+            List<Lesson> biggerDay = p1Lessons.size() > p2Lessons.size() ? p1Lessons : p2Lessons;
+            for (; i < biggerDay.size(); i++) {
+                Lesson lesson = new Lesson();
+                if (geneticAlgoConfig.isMutations()) {
+                    int chance = random.nextInt((100));
+                    if (chance <= geneticAlgoConfig.getMutationChance()) {
+                        if (random.nextBoolean()) {
+                            Teacher randomTeacher = teachers.get(random.nextInt(teachers.size()));
+                            lesson.setTeacher(randomTeacher);
+                            lesson.setLessonNumber(lessonNumber);
+                            lessonNumber++;
+                            offspringLessons.add(lesson);
+                        }
+                    }
                 }
             }
         }
@@ -207,9 +203,6 @@ public class GeneticAlgo {
     }
 
     private <K, V extends Comparable<? super V>> Map<K, V> sortMapByValue(Map<K, V> map) {
-        return map.entrySet().stream()
-                .sorted((o1, o2) -> o2.getValue().compareTo(o1.getValue()))
-                .collect(Collectors
-                        .toMap(Map.Entry::getKey, Map.Entry::getValue, (u, v) -> u, LinkedHashMap::new));
+        return map.entrySet().stream().sorted((o1, o2) -> o2.getValue().compareTo(o1.getValue())).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (u, v) -> u, LinkedHashMap::new));
     }
 }
