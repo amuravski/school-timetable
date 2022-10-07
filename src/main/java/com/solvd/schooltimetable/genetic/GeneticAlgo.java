@@ -17,6 +17,7 @@ public class GeneticAlgo {
     private List<CalendarDay> calendarDays;
     private SchoolTimetable currentBest;
     private double currentBestFitness;
+    private int luckyPercentileThreshold;
 
     public GeneticAlgo(GeneticAlgoConfig geneticAlgoConfig) {
         this.geneticAlgoConfig = geneticAlgoConfig;
@@ -93,6 +94,20 @@ public class GeneticAlgo {
         if (willCross.get(lastElementIndex).equals(shuffledWillCross.get(lastElementIndex))) {
             shuffledWillCross.add(0, shuffledWillCross.remove(lastElementIndex));
         }
+        
+        List<SchoolTimetable> luckys = new ArrayList<>();
+        luckys.addAll(population);
+        luckys.removeAll(newPopulation);
+        luckys.removeAll(willCross);
+        int n = population.size() * luckyPercentileThreshold;
+        Collections.shuffle(population);
+        luckys = population.stream().limit(n).collect(Collectors.toList());
+        newPopulation.addAll(
+                luckys.stream()
+                        .map(lucky -> getOffspring(lucky, willCross.get((int) (Math.random() * n))))
+                        .collect(Collectors.toList())
+        );
+        
         willCross.forEach(p1 -> {
             if (shuffledWillCross.size() > 0) {
                 SchoolTimetable p2;

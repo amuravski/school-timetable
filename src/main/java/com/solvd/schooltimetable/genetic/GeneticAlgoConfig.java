@@ -21,6 +21,8 @@ public class GeneticAlgoConfig {
     private final int generationPercentileThreshold;
     private final boolean elitism;
     private final int maxIterations;
+    boolean lucky;
+    int luckyPercentileThreshold;
 
     public GeneticAlgoConfig(String geneticAlgoConfigName) {
         Properties geneticAlgoConfigProperties = new Properties();
@@ -72,6 +74,22 @@ public class GeneticAlgoConfig {
         return maxIterations;
     }
 
+    public boolean isLucky() {
+        return lucky;
+    }
+
+    public void setLucky(boolean lucky) {
+        this.lucky = lucky;
+    }
+
+    public int getLuckyPercentileThreshold() {
+        return luckyPercentileThreshold;
+    }
+
+    public void setLuckyPercentileThreshold(int luckyPercentileThreshold) {
+        this.luckyPercentileThreshold = luckyPercentileThreshold;
+    }
+
     @Override
     public String toString() {
         return "GeneticAlgoConfig{" +
@@ -83,6 +101,8 @@ public class GeneticAlgoConfig {
                 ", generationPercentileThreshold=" + generationPercentileThreshold +
                 ", elitism=" + elitism +
                 ", maxIterations=" + maxIterations +
+                ", luckyPercentileThreshold=" + luckyPercentileThreshold +
+                ", lucky=" + lucky +
                 '}';
     }
 }
