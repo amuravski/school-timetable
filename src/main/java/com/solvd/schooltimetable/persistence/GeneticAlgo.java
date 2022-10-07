@@ -190,16 +190,15 @@ public class GeneticAlgo {
                     lesson.setLessonNumber(lessonNumber);
                     offspringLessons.add(lesson);
                     lessonNumber++;
-
                 }
             }
         }
-        if (geneticAlgoConfig.isMutations()==true) {
+        if (geneticAlgoConfig.isMutations()) {
             for (i = 0; i < offspringLessons.size(); i++) {
-                int chance = random.nextInt((100)+1);
+                int chance = random.nextInt((100));
                 if (chance <= geneticAlgoConfig.getMutationChance()) {
                     Teacher randomTeacher = teachers.get(random.nextInt(teachers.size()));
-                    offspringLessons.get(0).setTeacher(randomTeacher);
+                    offspringLessons.get(i).setTeacher(randomTeacher);
                 }
             }
         }
