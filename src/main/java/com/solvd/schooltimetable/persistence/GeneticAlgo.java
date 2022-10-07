@@ -15,9 +15,12 @@ public class GeneticAlgo {
     private List<Teacher> teachers;
     private List<CalendarDay> calendarDays;
     private SchoolTimetable currentBest;
+    private double currentBestFitness;
+    private List<Double> historicalAverageFitness;
 
     public GeneticAlgo(GeneticAlgoConfig geneticAlgoConfig) {
         this.geneticAlgoConfig = geneticAlgoConfig;
+        historicalAverageFitness = new ArrayList<>();
     }
 
     public void run() {
@@ -28,24 +31,12 @@ public class GeneticAlgo {
             }
             population = iterateGeneration(population);
         }
+        System.out.println(historicalAverageFitness);
     }
 
-//    public Double getFitness(SchoolTimetable schoolTimetable) {
-//        if (!isNoParallelTeachers(schoolTimetable)) {
-//            return Double.NEGATIVE_INFINITY;
-//        }
-//        return 0.;
-//        if (один учитель ведет урок у разных классов
-//        или
-//        число предметов в дне не отвечает критериям из конфига(а такое может быть?)){
-//            return Double.NEGATIVE_INFINITY;
-//        }
-//        return 1 / сумма(стандартное отклонение(количество уроков по каждому предмету в учебной неделе для каждого класса));
-    //}
-
-//    private List<Integer> countLessonsBySubject(ClassTimetable classTimetable) {
-//
-//    }
+    public double getCurrentBestFitness() {
+        return currentBestFitness;
+    }
 
     private Double getFitness(SchoolTimetable schoolTimetable) {
         List<List<Lesson>> lessons = schoolTimetable.getClassTimetables().stream()
@@ -90,17 +81,16 @@ public class GeneticAlgo {
     public List<SchoolTimetable> iterateGeneration(List<SchoolTimetable> population) {
         List<SchoolTimetable> rated = getRatedPopulation(population);
         currentBest = rated.get(0);
+        currentBestFitness = getFitness(rated.get(0));
         List<SchoolTimetable> newPopulation = new ArrayList<>();
         if (geneticAlgoConfig.isElitism()) {
             newPopulation.addAll(rated.subList(0,
                     population.size() / 100 * geneticAlgoConfig.getElitismPercentileThreshold()));
         }
-        //todo private final List<Double> historicalAvgPopulationFitness
         List<SchoolTimetable> willCross = rated.stream()
                 .filter(schoolTimetable -> getFitness(schoolTimetable) >= 0.)
                 .limit(population.size() / 100 * geneticAlgoConfig.getGenerationPercentileThreshold())
                 .collect(Collectors.toList());
-        System.out.println(willCross.size());
         List<SchoolTimetable> shuffledWillCross = new ArrayList<>(willCross);
         Collections.shuffle(shuffledWillCross);
         int lastElementIndex = willCross.size() - 1;
@@ -125,10 +115,16 @@ public class GeneticAlgo {
     }
 
     public List<SchoolTimetable> getRatedPopulation(List<SchoolTimetable> population) {
-        return new ArrayList<>(sortMapByValue(population.stream()
-                .collect(Collectors
-                        .toMap(schoolTimetable -> schoolTimetable, this::getFitness, (u, v) -> u, HashMap::new)))
-                .keySet());
+        Map<SchoolTimetable, Double> sortedMap = sortMapByValue(population
+                .stream()
+                .collect(Collectors.toMap(schoolTimetable -> schoolTimetable, this::getFitness, (u, v) -> u, HashMap::new)));
+        double averageFitness = sortedMap.values().stream()
+                .mapToDouble(i -> i)
+                .filter(Double::isFinite)
+                .average()
+                .getAsDouble();
+        historicalAverageFitness.add(averageFitness);
+        return new ArrayList<>(sortedMap.keySet());
     }
 
     public SchoolTimetable getOffspring(SchoolTimetable p1, SchoolTimetable p2) {
@@ -189,24 +185,12 @@ public class GeneticAlgo {
                 .forEach((i) -> schoolTimetables.add(getRandomSchoolTimetable()));
     }
 
-    public List<SchoolClass> getSchoolClasses() {
-        return schoolClasses;
-    }
-
     public void setSchoolClasses(List<SchoolClass> schoolClasses) {
         this.schoolClasses = schoolClasses;
     }
 
-    public List<Teacher> getTeachers() {
-        return teachers;
-    }
-
     public void setTeachers(List<Teacher> teachers) {
         this.teachers = teachers;
-    }
-
-    public List<CalendarDay> getCalendarDays() {
-        return calendarDays;
     }
 
     public void setCalendarDays(List<CalendarDay> calendarDays) {

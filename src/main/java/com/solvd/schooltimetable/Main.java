@@ -11,6 +11,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.List;
+import java.util.stream.IntStream;
 
 public class Main {
 
@@ -141,6 +142,19 @@ public class Main {
         geneticAlgo.setSchoolClasses(schoolClasses);
         geneticAlgo.setTeachers(teachers);
         geneticAlgo.setCalendarDays(calendarDays);
-        geneticAlgo.run();
+        var t = System.currentTimeMillis();
+        System.out.println(IntStream.range(0, 50)
+                .parallel().boxed()
+                .map(i -> new GeneticAlgo(geneticAlgoConfig))
+                .mapToDouble(i -> {
+                    i.setSchoolClasses(schoolClasses);
+                    i.setTeachers(teachers);
+                    i.setCalendarDays(calendarDays);
+                    i.run();
+                    return i.getCurrentBestFitness();
+                })
+                .filter(Double::isFinite)
+                .average().getAsDouble());
+        System.out.println(System.currentTimeMillis() - t);
     }
 }
