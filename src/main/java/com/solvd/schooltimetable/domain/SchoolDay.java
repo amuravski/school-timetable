@@ -1,6 +1,8 @@
 package com.solvd.schooltimetable.domain;
 
 import java.lang.reflect.Field;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -64,60 +66,103 @@ public class SchoolDay {
                 '}';
     }
 
-    public String table(){
+    public String table() {
 
-        final int tableNum = 2; // столбцы
-        final int countDelimeter = 4; // строки
+        Integer firstColumnSize = SchoolDay.firstColumn(lessons);
+        Integer secondColumnSize = SchoolDay.secondColumn(lessons);
 
+        //константы ширина общая таблицы(в символах)
+        //константы ширина 1 колонки
+        //константы ширина второй колонки
 
-
-        /*lessons.get().getTeacher().getFullName();
-        lessons.get().getTeacher().getSubject();*/
-
-        StringBuilder delimiterLine = createDelimiterLine(tableNum, countDelimeter);
+        //константы метод делиметр ап даун
+        //константы метод делиметр мид лайн
 
         final StringBuilder sb = new StringBuilder();
 
-        Field field1 = lessons.get().getClass().getField();
+        sb.append(createUpAndDownLine(firstColumnSize, secondColumnSize)).append("\r\n");
+        for (Lesson lesson : lessons) {
 
-        sb.append()lessons.get().getLessonNumber();
+            String teacherName = lesson.getTeacher().getFullName();
+            String subjectName = lesson.getTeacher().getSubject().getName();
+            String lessonNumber = String.valueOf(lesson.getLessonNumber());
 
-        for (int i = 0; i < countDelimeter; i++)
-            //sb.append(delimeterColumn).append(метод вызова строки).append("\r\n").append(delimiterLine).append("\r\n")
-            //sb.append(createLine(tableNum, i, countDelimeter)).append("\r\n").append(delimiterLine).append("\r\n");
-        System.out.println(sb);
+            sb.append(" ").append(lessonNumber).append("  ").append(subjectName)
+                    .append(stringMultiply(" ", (firstColumnSize - subjectName.length() - 4)))
+                    .append("|").append("\r\n");//первая колонка
 
+            sb.append(" ").append(teacherName)
+                    .append(stringMultiply(" ", (secondColumnSize - teacherName.length())))
+                    .append("|").append("\r\n");
+
+            sb.append(createDelimiterLine(firstColumnSize, secondColumnSize)).append("\r\n");
+        }
+        sb.append(createUpAndDownLine(firstColumnSize, secondColumnSize));
         return null;
     }
 
-    private static String delimeterColumn(String str) {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("|").append(str).append("|");
+    private static String createDelimiterLine(int firstColumnSize, int secondColumnSize) {
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("+----");
+        for (int i = 0; i <= firstColumnSize; i++) {
+            sb.append("-");
+        }
+        sb.append("|");
+        for (int i = 0; i <= secondColumnSize; i++) {
+            sb.append("-");
+        }
+        sb.append("+");
         return sb.toString();
     }
 
-    private static String createLine(final int tableNum, String str, final int countDelimeter) {
-
-        //lessons.stream().map(i -> createNumb(str, countDelimeter, "")).collect(Collectors.joining()).forEach(1, tableNum);
-
-        return IntStream.range(1, tableNum).boxed()
-                .map(i -> createNumb(15, countDelimeter, ""))
-                .collect(Collectors.joining("|", createNumb(150,countDelimeter,"|"), "|"));
-    }
-
-    private static StringBuilder createDelimiterLine(final int tableNum, final int countDelimeter){
-        final StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < tableNum; i++) {
-            for (int j = 0; j < countDelimeter; j++) sb.append("-");
-            sb.append("+");
+    public static String stringMultiply(String s, int n) {//метод для получения строк пробелов
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < n; i++) {
+            sb.append(s);
         }
-        return sb;
+        return sb.toString();
     }
 
-    private static String createNumb (final int numb, final int countOfSpace, final String delemiter){
-        final StringBuilder sb = new StringBuilder();
-        sb.append(" ");
-        sb.append(numb).append(delemiter);
+    public static Integer firstColumn(List<Lesson> lessons) {
+
+        int largestString = lessons.get(0).getTeacher().getSubject().getName().length();
+
+        for (Lesson lesson : lessons) {
+            if (lesson.getTeacher().getSubject().getName().length() > largestString) {
+                largestString = lesson.getTeacher().getSubject().getName().length();
+            }
+        }
+        return largestString;
+
+    }
+
+    public static Integer secondColumn(List<Lesson> lessons) {
+
+        int largestString = lessons.get(0).getTeacher().getFullName().length();
+
+        for (Lesson lesson : lessons) {
+            if (lesson.getTeacher().getFullName().length() > largestString) {
+                largestString = lesson.getTeacher().getFullName().length();
+            }
+        }
+
+        return largestString;
+    }
+
+    public static String createUpAndDownLine(Integer firstColumnSize, Integer secondColumnSize) {
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("+----");
+        for (int i = 0; i <= firstColumnSize; i++) {
+            sb.append("-");
+        }
+        sb.append("+");
+        for (int i = 0; i <= secondColumnSize; i++) {
+            sb.append("-");
+        }
+        sb.append("+");
+
         return sb.toString();
     }
 }

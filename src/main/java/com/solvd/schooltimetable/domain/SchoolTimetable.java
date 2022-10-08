@@ -72,8 +72,6 @@ public class SchoolTimetable {
             sb.append(createLine(tableNum, i, countDelimeter)).append("\r\n").append(delimiterLine).append("\r\n");
         System.out.println(sb);
 
-        //classTimetables.stream().map().collect().forEach();
-
         return "SchoolTimetable{" +
                 "id=" + id +
                 ", hashcode=" + hashcode +
