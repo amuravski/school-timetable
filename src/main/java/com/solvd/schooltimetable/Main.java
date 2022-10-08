@@ -1,15 +1,15 @@
 package com.solvd.schooltimetable;
 
-import com.solvd.schooltimetable.domain.CalendarDay;
-import com.solvd.schooltimetable.domain.SchoolClass;
-import com.solvd.schooltimetable.domain.Teacher;
+import com.solvd.schooltimetable.domain.*;
 import com.solvd.schooltimetable.genetic.GeneticAlgo;
 import com.solvd.schooltimetable.genetic.GeneticAlgoConfig;
 import com.solvd.schooltimetable.service.CalendarDayService;
 import com.solvd.schooltimetable.service.SchoolClassService;
+import com.solvd.schooltimetable.service.SchoolTimetableService;
 import com.solvd.schooltimetable.service.TeacherService;
 import com.solvd.schooltimetable.service.impl.CalendarDayServiceImpl;
 import com.solvd.schooltimetable.service.impl.SchoolClassServiceImpl;
+import com.solvd.schooltimetable.service.impl.SchoolTimetableServiceImpl;
 import com.solvd.schooltimetable.service.impl.TeacherServiceImpl;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,6 +30,13 @@ public class Main {
         List<SchoolClass> schoolClasses = schoolClassService.findAll();
         List<Teacher> teachers = teacherService.findAll();
         List<CalendarDay> calendarDays = calendarDayService.findAll();
+
+///
+        SchoolTimetableService schoolTimetableService = new SchoolTimetableServiceImpl();
+        List<SchoolTimetable> sts = schoolTimetableService.findAll();
+        System.out.println(sts);
+        System.exit(0);
+        ////
 
         GeneticAlgoConfig geneticAlgoConfig = new GeneticAlgoConfig("geneticAlgoConfig.properties");
         GeneticAlgo geneticAlgo = new GeneticAlgo(geneticAlgoConfig);
