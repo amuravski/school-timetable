@@ -1,7 +1,10 @@
 package com.solvd.schooltimetable.domain;
 
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class SchoolDay {
 
@@ -59,5 +62,62 @@ public class SchoolDay {
                 ", calendarDay=" + calendarDay +
                 ", lessons=" + lessons +
                 '}';
+    }
+
+    public String table(){
+
+        final int tableNum = 2; // столбцы
+        final int countDelimeter = 4; // строки
+
+
+
+        /*lessons.get().getTeacher().getFullName();
+        lessons.get().getTeacher().getSubject();*/
+
+        StringBuilder delimiterLine = createDelimiterLine(tableNum, countDelimeter);
+
+        final StringBuilder sb = new StringBuilder();
+
+        Field field1 = lessons.get().getClass().getField();
+
+        sb.append()lessons.get().getLessonNumber();
+
+        for (int i = 0; i < countDelimeter; i++)
+            //sb.append(delimeterColumn).append(метод вызова строки).append("\r\n").append(delimiterLine).append("\r\n")
+            //sb.append(createLine(tableNum, i, countDelimeter)).append("\r\n").append(delimiterLine).append("\r\n");
+        System.out.println(sb);
+
+        return null;
+    }
+
+    private static String delimeterColumn(String str) {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("|").append(str).append("|");
+        return sb.toString();
+    }
+
+    private static String createLine(final int tableNum, String str, final int countDelimeter) {
+
+        //lessons.stream().map(i -> createNumb(str, countDelimeter, "")).collect(Collectors.joining()).forEach(1, tableNum);
+
+        return IntStream.range(1, tableNum).boxed()
+                .map(i -> createNumb(15, countDelimeter, ""))
+                .collect(Collectors.joining("|", createNumb(150,countDelimeter,"|"), "|"));
+    }
+
+    private static StringBuilder createDelimiterLine(final int tableNum, final int countDelimeter){
+        final StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < tableNum; i++) {
+            for (int j = 0; j < countDelimeter; j++) sb.append("-");
+            sb.append("+");
+        }
+        return sb;
+    }
+
+    private static String createNumb (final int numb, final int countOfSpace, final String delemiter){
+        final StringBuilder sb = new StringBuilder();
+        sb.append(" ");
+        sb.append(numb).append(delemiter);
+        return sb.toString();
     }
 }

@@ -6,6 +6,11 @@ import com.solvd.schooltimetable.service.impl.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 public class Main {
 
     private static final Logger LOGGER = LogManager.getLogger(Main.class);
@@ -64,5 +69,14 @@ public class Main {
         lessonService.update(lesson);
         LOGGER.info(lessonService.findById(lesson.getId()));
         lessonService.delete(lesson);
+
+        SchoolTimetable schoolTimetable = new SchoolTimetable();
+        System.out.println(schoolTimetable);
+
+        /*SchoolDay schoolDay = new SchoolDay();
+        List<Lesson> lessons = new ArrayList<>();
+        lessons.add(lesson);
+        schoolDay.setLessons(lessons);
+        schoolDay.table();*/
     }
 }
