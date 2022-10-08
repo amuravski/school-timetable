@@ -5,8 +5,10 @@ import com.solvd.schooltimetable.util.DoubleStatistics;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class GeneticAlgo {
 
@@ -17,10 +19,16 @@ public class GeneticAlgo {
     private List<CalendarDay> calendarDays;
     private SchoolTimetable currentBest;
     private double currentBestFitness;
+    private int numberOfSubjectsWithTeachers;
+    private Set<Subject> allSubjects;
 
     public GeneticAlgo(GeneticAlgoConfig geneticAlgoConfig) {
         this.geneticAlgoConfig = geneticAlgoConfig;
         historicalAverageFitness = new ArrayList<>();
+    }
+
+    public int getNumberOfSubjectsWithTeachers() {
+        return numberOfSubjectsWithTeachers;
     }
 
     public SchoolTimetable getCurrentBest() {
@@ -42,22 +50,41 @@ public class GeneticAlgo {
     public void run() {
         List<SchoolTimetable> population = getPopulation();
         for (int i = 0; i < geneticAlgoConfig.getMaxIterations(); i++) {
-            if (i != 0 && getFitness(currentBest) == Double.POSITIVE_INFINITY) {
+            if (i != 0 && isGood()) {
                 return;
             }
             population = iterateGeneration(population);
         }
     }
 
-    private Double getFitness(SchoolTimetable schoolTimetable) {
-        List<List<Lesson>> lessons = schoolTimetable.getClassTimetables().stream()
-                .map(ClassTimetable::getSchoolDays)
-                .map(schoolDays -> schoolDays
-                        .stream()
-                        .flatMap(schoolDay -> schoolDay.getLessons()
-                                .stream())
-                        .collect(Collectors.toList()))
+    public boolean isGood() {
+        SchoolTimetable schoolTimetable = currentBest;
+        Supplier<Stream<List<SchoolDay>>> daysSupplier = () -> schoolTimetable.getClassTimetables().stream()
+                .map(ClassTimetable::getSchoolDays);
+        if (daysSupplier.get().flatMap(Collection::stream)
+                .anyMatch(schoolDay -> schoolDay.getLessons().stream().map(lesson -> lesson.getTeacher().getSubject())
+                        .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+                        .values().stream()
+                        .anyMatch(value -> value > 1))) {
+            //System.out.println("Contains non unique subjects.");
+            return false;
+        }
+        List<List<Lesson>> lessons = daysSupplier.get().map(schoolDays -> schoolDays
+                .stream()
+                .flatMap(schoolDay -> schoolDay.getLessons().stream())
+                .collect(Collectors.toList()))
                 .collect(Collectors.toList());
+        if (lessons.stream()
+                .map(allClassLessons -> allClassLessons
+                        .stream()
+                        .map(lesson -> lesson.getTeacher().getSubject())
+                        .collect(Collectors.groupingBy(Function.identity(), Collectors.counting())))
+                .map(Map::size)
+                .anyMatch(numberOfSubjectsInWeek -> numberOfSubjectsInWeek < numberOfSubjectsWithTeachers)) {
+            //System.out.println("Not all subjects included.");
+            return false;
+        }
+
         for (int i = 0; i < lessons.size() - 1; i++) {
             for (int j = i + 1; j < lessons.size(); j++) {
                 int ic = 0;
@@ -67,23 +94,72 @@ public class GeneticAlgo {
                         jc++;
                         continue;
                     }
-                    if (lessons.get(i).get(ic).getLessonNumber() > lessons.get(j).get(jc).getLessonNumber()) {
+                    else if (lessons.get(i).get(ic).getLessonNumber() > lessons.get(j).get(jc).getLessonNumber()) {
                         ic++;
                         continue;
                     }
                     if (lessons.get(i).get(ic).getTeacher().equals(lessons.get(j).get(jc).getTeacher())) {
-                        return Double.NEGATIVE_INFINITY;
+                        //System.out.println("Contains paralleled teacher.");
+                        return false;
                     }
                     ic++;
                     jc++;
                 }
             }
         }
-        return 1 / lessons.stream()
+        return true;
+    }
+
+    private Double getFitness(SchoolTimetable schoolTimetable) {
+        Double fitness = 0.;
+        Supplier<Stream<List<SchoolDay>>> daysSupplier = () -> schoolTimetable.getClassTimetables().stream()
+                .map(ClassTimetable::getSchoolDays);
+
+        if (daysSupplier.get().flatMap(Collection::stream)
+                .anyMatch(schoolDay -> schoolDay.getLessons().stream().map(lesson -> lesson.getTeacher().getSubject())
+                        .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+                        .values().stream()
+                        .anyMatch(value -> value > 1))) {
+            fitness--;
+        }
+        else {
+            fitness++;
+        }
+
+        List<List<Lesson>> lessons = daysSupplier.get().map(schoolDays -> schoolDays
+                .stream()
+                .flatMap(schoolDay -> schoolDay.getLessons().stream())
+                .collect(Collectors.toList()))
+                .collect(Collectors.toList());
+
+        for (int i = 0; i < lessons.size() - 1; i++) {
+            for (int j = i + 1; j < lessons.size(); j++) {
+                int ic = 0;
+                int jc = 0;
+                while (ic < lessons.get(i).size() && jc < lessons.get(j).size()) {
+                    if (lessons.get(i).get(ic).getLessonNumber() < lessons.get(j).get(jc).getLessonNumber()) {
+                        jc++;
+                        continue;
+                    }
+                    else if (lessons.get(i).get(ic).getLessonNumber() > lessons.get(j).get(jc).getLessonNumber()) {
+                        ic++;
+                        continue;
+                    }
+                    if (lessons.get(i).get(ic).getTeacher().equals(lessons.get(j).get(jc).getTeacher())) {
+                        fitness--;
+                    }
+                    ic++;
+                    jc++;
+                }
+            }
+        }
+        return fitness + 2 / lessons.stream()
                 .map(allClassLessons -> allClassLessons
                         .stream()
                         .map(lesson -> lesson.getTeacher().getSubject())
-                        .collect(Collectors.groupingBy(Function.identity(), Collectors.counting())))
+                        .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))).
+                        peek(subjectLongMap -> allSubjects
+                                .forEach(subject -> subjectLongMap.putIfAbsent(subject, (long) -8 * geneticAlgoConfig.getMaxLessons())))
                 .map(subjectLongMap -> computeStandardDeviation(subjectLongMap.values()))
                 .reduce(Double::sum)
                 .get();
@@ -96,12 +172,10 @@ public class GeneticAlgo {
         List<SchoolTimetable> newPopulation = new ArrayList<>();
         if (geneticAlgoConfig.isElitism()) {
             newPopulation.addAll(rated.subList(0,
-                    population.size() / 100 * geneticAlgoConfig.getElitismPercentileThreshold()));
+                    population.size() / 100 * geneticAlgoConfig.getGenerationPercentileThreshold()));
         }
-        List<SchoolTimetable> willCross = rated.stream()
-                .filter(schoolTimetable -> getFitness(schoolTimetable) >= 0.)
-                .limit(population.size() / 100 * geneticAlgoConfig.getGenerationPercentileThreshold())
-                .collect(Collectors.toList());
+        List<SchoolTimetable> willCross = new ArrayList<>(rated.subList(0,
+                population.size() / 100 * geneticAlgoConfig.getElitismPercentileThreshold()));
         List<SchoolTimetable> shuffledWillCross = new ArrayList<>(willCross);
         Collections.shuffle(shuffledWillCross);
         int lastElementIndex = willCross.size() - 1;
@@ -214,6 +288,10 @@ public class GeneticAlgo {
 
     public void setTeachers(List<Teacher> teachers) {
         this.teachers = teachers;
+        this.allSubjects = this.teachers.stream()
+                .map(Teacher::getSubject)
+                .collect(Collectors.toSet());
+        this.numberOfSubjectsWithTeachers = this.allSubjects.size();
     }
 
     public void setCalendarDays(List<CalendarDay> calendarDays) {

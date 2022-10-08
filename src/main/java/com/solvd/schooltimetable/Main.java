@@ -15,6 +15,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 public class Main {
@@ -31,28 +32,34 @@ public class Main {
         List<CalendarDay> calendarDays = calendarDayService.findAll();
 
         GeneticAlgoConfig geneticAlgoConfig = new GeneticAlgoConfig("geneticAlgoConfig.properties");
-        if ((geneticAlgoConfig.getMinLessons() + geneticAlgoConfig.getMinLessons()) / 2 > teachers.size()) {
-            throw new RuntimeException("Not enough teachers for this number of classes.");
-        }
         GeneticAlgo geneticAlgo = new GeneticAlgo(geneticAlgoConfig);
         geneticAlgo.setSchoolClasses(schoolClasses);
         geneticAlgo.setTeachers(teachers);
         geneticAlgo.setCalendarDays(calendarDays);
-
+        if (geneticAlgoConfig.getMaxLessons() * geneticAlgoConfig.getMinWorkDays() < geneticAlgo.getNumberOfSubjectsWithTeachers()) {
+            throw new RuntimeException("Not enough lessons in week to include all subjects.");
+        }
+        if (geneticAlgoConfig.getMinLessons() * schoolClasses.size() > teachers.size()) {
+            throw new RuntimeException("Not enough teachers for this number of classes.");
+        }
+        int n = 10;
         long t = System.currentTimeMillis();
-        LOGGER.info(IntStream.range(0, 50)
-                .parallel().boxed()
+        AtomicInteger ideals = new AtomicInteger(0);
+        LOGGER.info(IntStream.range(0, n).parallel().boxed()
                 .map(i -> new GeneticAlgo(geneticAlgoConfig))
                 .mapToDouble(i -> {
                     i.setSchoolClasses(schoolClasses);
                     i.setTeachers(teachers);
                     i.setCalendarDays(calendarDays);
                     i.run();
-                    LOGGER.info(i.getHistoricalAverageFitness());
+                    if (i.isGood()) {
+                        ideals.incrementAndGet();
+                    }
                     return i.getCurrentBestFitness();
                 })
                 .filter(Double::isFinite)
                 .average().getAsDouble());
+        LOGGER.info("Ideals out of " + n + ": " + ideals.get());
         LOGGER.info(System.currentTimeMillis() - t);
     }
 }
