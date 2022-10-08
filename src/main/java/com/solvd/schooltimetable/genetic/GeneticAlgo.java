@@ -231,6 +231,7 @@ public class GeneticAlgo {
         for (int i = 0; i < p1TimeTables.size(); i++) {
             offspringTimetables.add(getOffspring(p1TimeTables.get(i), p2TimeTables.get(i)));
         }
+
         offspring.setClassTimetables(offspringTimetables);
         return offspring;
     }
@@ -303,9 +304,24 @@ public class GeneticAlgo {
         List<SchoolDay> p1Days = p1.getSchoolDays();
         List<SchoolDay> p2Days = p2.getSchoolDays();
         List<SchoolDay> offspringDays = new ArrayList<>();
-        for (int i = 0; i < p1Days.size(); i++) {
-            offspringDays.add(getOffspring(p1Days.get(i), p2Days.get(i)));
-        }
+
+//        for (int i = 0; i < p1Days.size(); i++) {
+//            offspringDays.add(getOffspring(p1Days.get(i), p2Days.get(i)));
+//        }
+
+//        IntStream.range(0, p1Days.size())
+//                .forEach(i -> {
+//                    offspringDays.add(getOffspring(p1Days.get(i), p2Days.get(i)));
+//                });
+
+        Map<SchoolDay, SchoolDay> d1d2;
+        List<SchoolDay> keys = p1Days;
+        List<SchoolDay> values = p2Days;
+        d1d2 = IntStream.range(0, keys.size()).boxed().collect(Collectors.toMap(keys::get, values::get));
+        d1d2.entrySet().stream().forEach(schoolDaySchoolDayEntry ->
+                    offspringDays.add(getOffspring(schoolDaySchoolDayEntry.getValue(), schoolDaySchoolDayEntry.getKey()))
+        );
+
         offspring.setSchoolDays(offspringDays);
         return offspring;
     }
