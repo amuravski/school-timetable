@@ -23,6 +23,8 @@ public class GeneticAlgoConfig {
     private int maxIterations;
     private boolean lucky;
     private int luckyPercentileThreshold;
+    private boolean mutations;
+    private int mutationChance;
 
     public GeneticAlgoConfig(String geneticAlgoConfigName) {
         Properties geneticAlgoConfigProperties = new Properties();
@@ -42,6 +44,8 @@ public class GeneticAlgoConfig {
         maxIterations = Integer.parseInt(geneticAlgoConfigProperties.getProperty("maxIterations"));
         lucky = Boolean.parseBoolean(geneticAlgoConfigProperties.getProperty("lucky"));
         luckyPercentileThreshold = Integer.parseInt(geneticAlgoConfigProperties.getProperty("luckyPercentileThreshold"));
+        mutations = Boolean.parseBoolean(geneticAlgoConfigProperties.getProperty("mutations"));
+        mutationChance = Integer.parseInt(geneticAlgoConfigProperties.getProperty("mutationChance"));
     }
 
     public int getMinWorkDays() {
@@ -104,6 +108,10 @@ public class GeneticAlgoConfig {
         return maxIterations;
     }
 
+    public boolean isMutations() { return mutations; }
+
+    public int getMutationChance() { return mutationChance; }
+
     public void setMaxIterations(int maxIterations) {
         this.maxIterations = maxIterations;
     }
@@ -137,6 +145,8 @@ public class GeneticAlgoConfig {
                 ", maxIterations=" + maxIterations +
                 ", luckyPercentileThreshold=" + luckyPercentileThreshold +
                 ", lucky=" + lucky +
+                ", mutations=" + mutations +
+                ", mutationChance=" + mutationChance +
                 '}';
     }
 }
