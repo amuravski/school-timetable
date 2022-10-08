@@ -169,8 +169,8 @@ public class GeneticAlgo {
         for (i = 0; i < Integer.min(p1Lessons.size(), p2Lessons.size()); i++) {
             Lesson lesson = new Lesson((random.nextBoolean() ? p1Lessons.get(i) : p2Lessons.get(i)).getTeacher());
             if (geneticAlgoConfig.isMutations()) {
-                int chance = random.nextInt((100));
-                if (chance <= geneticAlgoConfig.getMutationChance()) {
+                int chance = random.nextInt(100);
+                if (chance < geneticAlgoConfig.getMutationChance()) {
                     Teacher randomTeacher = teachers.get(random.nextInt(teachers.size()));
                     lesson.setTeacher(randomTeacher);
                 }
@@ -185,7 +185,7 @@ public class GeneticAlgo {
             for (; i < biggerDay.size(); i++) {
                 Lesson lesson = new Lesson();
                 if (geneticAlgoConfig.isMutations()) {
-                    int chance = random.nextInt((100));
+                    int chance = random.nextInt(100);
                     if (chance <= geneticAlgoConfig.getMutationChance()) {
                         if (random.nextBoolean()) {
                             Teacher randomTeacher = teachers.get(random.nextInt(teachers.size()));
