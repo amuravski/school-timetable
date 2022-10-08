@@ -55,6 +55,9 @@ public class GeneticAlgo {
             }
             population = iterateGeneration(population);
         }
+//        if (!isGood()) {
+//            run();
+//        }
     }
 
     public boolean isGood() {
@@ -316,22 +319,40 @@ public class GeneticAlgo {
         List<Lesson> p1Lessons = p1.getLessons();
         List<Lesson> p2Lessons = p2.getLessons();
         List<Lesson> offspringLessons = new ArrayList<>();
+        int size = historicalAverageFitness.size() - 1;
+        boolean mutations = size > 2
+                && historicalAverageFitness.get(size) - historicalAverageFitness.get(size - 2) <= 0;
         int i;
         int lessonNumber = 1;
         for (i = 0; i < Integer.min(p1Lessons.size(), p2Lessons.size()); i++) {
             Lesson lesson = new Lesson((random.nextBoolean() ? p1Lessons.get(i) : p2Lessons.get(i)).getTeacher());
-            lesson.setLessonNumber(lessonNumber);
+            if (mutations) {
+                int chance = random.nextInt(100);
+                if (chance < geneticAlgoConfig.getMutationChance()) {
+                    Teacher randomTeacher = teachers.get(random.nextInt(teachers.size()));
+                    lesson.setTeacher(randomTeacher);
+                }
+            }
+            lesson.setLessonNumber(i);
             offspringLessons.add(lesson);
             lessonNumber++;
         }
+
         if (p1Lessons.size() != p2Lessons.size()) {
             List<Lesson> biggerDay = p1Lessons.size() > p2Lessons.size() ? p1Lessons : p2Lessons;
             for (; i < biggerDay.size(); i++) {
-                if (random.nextBoolean()) {
-                    Lesson lesson = new Lesson(biggerDay.get(i).getTeacher());
-                    lesson.setLessonNumber(lessonNumber);
-                    offspringLessons.add(lesson);
-                    lessonNumber++;
+                Lesson lesson = new Lesson();
+                if (mutations) {
+                    int chance = random.nextInt(100);
+                    if (chance < geneticAlgoConfig.getMutationChance()) {
+                        if (random.nextBoolean()) {
+                            Teacher randomTeacher = teachers.get(random.nextInt(teachers.size()));
+                            lesson.setTeacher(randomTeacher);
+                            lesson.setLessonNumber(lessonNumber);
+                            lessonNumber++;
+                            offspringLessons.add(lesson);
+                        }
+                    }
                 }
             }
         }
