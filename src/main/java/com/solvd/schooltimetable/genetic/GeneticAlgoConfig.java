@@ -44,7 +44,6 @@ public class GeneticAlgoConfig {
         maxIterations = Integer.parseInt(geneticAlgoConfigProperties.getProperty("maxIterations"));
         lucky = Boolean.parseBoolean(geneticAlgoConfigProperties.getProperty("lucky"));
         luckyPercentileThreshold = Integer.parseInt(geneticAlgoConfigProperties.getProperty("luckyPercentileThreshold"));
-        mutations = Boolean.parseBoolean(geneticAlgoConfigProperties.getProperty("mutations"));
         mutationChance = Integer.parseInt(geneticAlgoConfigProperties.getProperty("mutationChance"));
     }
 
@@ -108,10 +107,6 @@ public class GeneticAlgoConfig {
         return maxIterations;
     }
 
-    public boolean isMutations() { return mutations; }
-
-    public int getMutationChance() { return mutationChance; }
-
     public void setMaxIterations(int maxIterations) {
         this.maxIterations = maxIterations;
     }
@@ -132,6 +127,22 @@ public class GeneticAlgoConfig {
         this.luckyPercentileThreshold = luckyPercentileThreshold;
     }
 
+    public boolean isMutations() {
+        return mutations;
+    }
+
+    public void setMutations(boolean mutations) {
+        this.mutations = mutations;
+    }
+
+    public int getMutationChance() {
+        return mutationChance;
+    }
+
+    public void setMutationChance(int mutationChance) {
+        this.mutationChance = mutationChance;
+    }
+
     @Override
     public String toString() {
         return "GeneticAlgoConfig{" +
@@ -143,8 +154,8 @@ public class GeneticAlgoConfig {
                 ", generationPercentileThreshold=" + generationPercentileThreshold +
                 ", elitism=" + elitism +
                 ", maxIterations=" + maxIterations +
-                ", luckyPercentileThreshold=" + luckyPercentileThreshold +
                 ", lucky=" + lucky +
+                ", luckyPercentileThreshold=" + luckyPercentileThreshold +
                 ", mutations=" + mutations +
                 ", mutationChance=" + mutationChance +
                 '}';
