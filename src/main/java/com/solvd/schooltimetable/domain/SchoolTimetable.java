@@ -60,29 +60,30 @@ public class SchoolTimetable {
         List<String> stringOut;
         int lessonsNumberInDay;
         stringOut = new ArrayList<>();
+        stringOut.add("\n");
         int numberOfClasses = classTimetables.size();
-        String line1 = "+-------------------------------------------------";
+        String line1 = "+–––––––––––––––––––––––––––––––––––––––––––––––––––";
         String lineRepeat1 = new String(new char[numberOfClasses]).replace("\0", line1);
-        String line2 = "+--------------------------+----------------------";
+        String line2 = "+––––––––––––––––––––––––––––+––––––––––––––––––––––";
         String lineRepeat2 = new String(new char[numberOfClasses]).replace("\0", line2);
-        String titleSubject = "| #   Subject              | Teacher              ";
+        String titleSubject = "| #   Subject                | Teacher              ";
         String titleSubjectRepeat = new String(new char[numberOfClasses]).replace("\0", titleSubject);
 
         List<CalendarDay> weekWorkDaysNames = classTimetables.stream()
                 .flatMap(classTimetable -> classTimetable.getSchoolDays().stream())
-                .map(schoolDay -> schoolDay.getCalendarDay())
+                .map(SchoolDay::getCalendarDay)
                 .distinct()
                 .collect(Collectors.toList());
 
         stringOut.add(classTimetables.stream()
                 .sorted((ct1, ct2) -> -ct2.getSchoolClass().getId().compareTo(ct1.getSchoolClass().getId()))
                 .map(classTimetable ->
-                        String.format("                       %4s class                 ", classTimetable.getSchoolClass().getName()))
+                        String.format("                       %4s class                   ", classTimetable.getSchoolClass().getName()))
                 .collect(Collectors.joining()));
         stringOut.add(" \n" + lineRepeat1 + "+\n");
 
-        for (Long j = 1L; j < weekWorkDaysNames.size() + 1; j++) {
-            String strDay = String.format("Day %s - %-10s ", j, weekWorkDaysNames.get(Math.toIntExact(j - 1)).getName());
+        for (long j = 1L; j < weekWorkDaysNames.size() + 1; j++) {
+            String strDay = String.format("Day %s - %-12s ", j, weekWorkDaysNames.get(Math.toIntExact(j - 1)).getName());
             String titleDay = "|                    " + strDay + "          ";
             String titleDayRepeat = new String(new char[numberOfClasses]).replace("\0", titleDay);
             stringOut.add(titleDayRepeat + "|\n");
@@ -93,14 +94,13 @@ public class SchoolTimetable {
                     .sorted((ct1, ct2) -> -ct2.getSchoolClass().getId().compareTo(ct1.getSchoolClass().getId()))
                     .flatMap(classTimetable -> classTimetable.getSchoolDays().stream())
                     .filter(schoolDay -> (schoolDay.getCalendarDay().getId().equals(finalJ)))
-                    .sorted((schoolDay1, schoolDay2) -> -schoolDay2.getId().compareTo(schoolDay1.getId()))
                     .flatMap(schoolDay -> schoolDay.getLessons().stream())
                     .collect(Collectors.toList());
 
             lessonsNumberInDay = (int) classTimetables.stream()
                     .flatMap(classTimetable -> classTimetable.getSchoolDays().stream())
                     .flatMap(schoolDay -> schoolDay.getLessons().stream())
-                    .map(lesson -> lesson.getLessonNumber())
+                    .map(Lesson::getLessonNumber)
                     .distinct()
                     .count();
 
@@ -110,13 +110,12 @@ public class SchoolTimetable {
                 int finalI = i;
                 stringOut.add(lessons.stream()
                         .filter(lesson -> (lesson.getLessonNumber().equals(finalI)))
-                        .map(lesson -> String.format("| %-1s   %-20s | %-20s ", lesson.getLessonNumber(), lesson.getTeacher().getSubject().getName(), lesson.getTeacher().getFullName()))
+                        .map(lesson -> String.format("| %-1s   %-22s | %-20s ", lesson.getLessonNumber(), lesson.getTeacher().getSubject().getName(), lesson.getTeacher().getFullName()))
                         .collect(Collectors.joining()));
                 stringOut.add("|\n");
             }
             stringOut.add(lineRepeat2 + "+\n");
         }
-        String resultString = String.join("", stringOut);
-        return resultString;
+        return String.join("", stringOut);
     }
 }
