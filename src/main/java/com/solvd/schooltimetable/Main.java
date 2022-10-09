@@ -42,7 +42,7 @@ public class Main {
         if (geneticAlgoConfig.getMinLessons() * schoolClasses.size() > teachers.size()) {
             throw new RuntimeException("Not enough teachers for this number of classes.");
         }
-        int n = 100;
+        int n = 2;
         long t = System.currentTimeMillis();
         AtomicInteger ideals = new AtomicInteger(0);
         LOGGER.info(IntStream.range(0, n).parallel().boxed()
