@@ -70,9 +70,9 @@ public class GeneticAlgo {
             return false;
         }
         List<List<Lesson>> lessons = daysSupplier.get().map(schoolDays -> schoolDays
-                        .stream()
-                        .flatMap(schoolDay -> schoolDay.getLessons().stream())
-                        .collect(Collectors.toList()))
+                .stream()
+                .flatMap(schoolDay -> schoolDay.getLessons().stream())
+                .collect(Collectors.toList()))
                 .collect(Collectors.toList());
         if (lessons.stream()
                 .map(allClassLessons -> allClassLessons
@@ -127,9 +127,9 @@ public class GeneticAlgo {
         }
 
         List<List<Lesson>> lessons = daysSupplier.get().map(schoolDays -> schoolDays
-                        .stream()
-                        .flatMap(schoolDay -> schoolDay.getLessons().stream())
-                        .collect(Collectors.toList()))
+                .stream()
+                .flatMap(schoolDay -> schoolDay.getLessons().stream())
+                .collect(Collectors.toList()))
                 .collect(Collectors.toList());
 
         for (int i = 0; i < lessons.size() - 1; i++) {
@@ -158,8 +158,8 @@ public class GeneticAlgo {
                         .stream()
                         .map(lesson -> lesson.getTeacher().getSubject())
                         .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))).
-                peek(subjectLongMap -> allSubjects
-                        .forEach(subject -> subjectLongMap.putIfAbsent(subject, (long) -8 * geneticAlgoConfig.getMaxLessons())))
+                        peek(subjectLongMap -> allSubjects
+                                .forEach(subject -> subjectLongMap.putIfAbsent(subject, (long) -8 * geneticAlgoConfig.getMaxLessons())))
                 .map(subjectLongMap -> computeStandardDeviation(subjectLongMap.values()))
                 .reduce(Double::sum)
                 .get();
@@ -228,18 +228,10 @@ public class GeneticAlgo {
         List<ClassTimetable> p1TimeTables = p1.getClassTimetables();
         List<ClassTimetable> p2TimeTables = p2.getClassTimetables();
         List<ClassTimetable> offspringTimetables = new ArrayList<>();
-//        for (int i = 0; i < p1TimeTables.size(); i++) {
-//            offspringTimetables.add(getOffspring(p1TimeTables.get(i), p2TimeTables.get(i)));
-//        }
-
-        Map<ClassTimetable, ClassTimetable> p1p2;
-        List<ClassTimetable> keys = p1TimeTables;
-        List<ClassTimetable> values = p2TimeTables;
-        p1p2 = IntStream.range(0, keys.size()).boxed().collect(Collectors.toMap(keys::get, values::get));
-        p1p2.entrySet().stream().forEach(classTimetableClassTimetableEntry ->
-                offspringTimetables.add(getOffspring(classTimetableClassTimetableEntry.getValue(), classTimetableClassTimetableEntry.getKey()))
-        );
-
+        IntStream.range(0, p1TimeTables.size())
+                .boxed()
+                .collect(Collectors.toMap(p1TimeTables::get, p2TimeTables::get))
+                .forEach((key, value) -> offspringTimetables.add(getOffspring(value, key)));
         offspring.setClassTimetables(offspringTimetables);
         return offspring;
     }
@@ -250,37 +242,25 @@ public class GeneticAlgo {
                 .map(schoolClass -> {
                     Random rand = new Random();
                     List<SchoolDay> schoolDays = new ArrayList<>();
-
-//                    for (int i = 0; i < geneticAlgoConfig.getMinWorkDays(); i++) {
                     IntStream.range(0, geneticAlgoConfig.getMinWorkDays())
                             .forEach(i -> {
 
-                        SchoolDay schoolDay = new SchoolDay();
-                        schoolDay.setCalendarDay(calendarDays.get(i));
-                        int numberOfLessons = (int) (geneticAlgoConfig.getMinLessons() +
-                                Math.random() *
-                                        (geneticAlgoConfig.getMaxLessons() - geneticAlgoConfig.getMinLessons() + 1));
-                        List<Lesson> lessons = new ArrayList<>();
-//                        for (int j = 1; j < numberOfLessons + 1; j++) {
-//                            Teacher randomTeacher = teachers.get(rand.nextInt(teachers.size()));
-//                            Lesson lesson = new Lesson(randomTeacher);
-//                            lesson.setLessonNumber(j);
-//                            lessons.add(lesson);
-//                        }
-                        IntStream.range(0, numberOfLessons + 1)
-                                .forEach(j -> {
-                                    Teacher randomTeacher = teachers.get(rand.nextInt(teachers.size()));
-                                    Lesson lesson = new Lesson(randomTeacher);
-                                    lesson.setLessonNumber(j);
-                                    lessons.add(lesson);
-                                });
-
-                        schoolDay.setLessons(lessons);
-                        schoolDays.add(schoolDay);
-
-//                    }
-                    });
-
+                                SchoolDay schoolDay = new SchoolDay();
+                                schoolDay.setCalendarDay(calendarDays.get(i));
+                                int numberOfLessons = (int) (geneticAlgoConfig.getMinLessons() +
+                                        Math.random() *
+                                                (geneticAlgoConfig.getMaxLessons() - geneticAlgoConfig.getMinLessons() + 1));
+                                List<Lesson> lessons = new ArrayList<>();
+                                IntStream.range(0, numberOfLessons + 1)
+                                        .forEach(j -> {
+                                            Teacher randomTeacher = teachers.get(rand.nextInt(teachers.size()));
+                                            Lesson lesson = new Lesson(randomTeacher);
+                                            lesson.setLessonNumber(j);
+                                            lessons.add(lesson);
+                                        });
+                                schoolDay.setLessons(lessons);
+                                schoolDays.add(schoolDay);
+                            });
                     ClassTimetable classTimetable = new ClassTimetable();
                     classTimetable.setSchoolClass(schoolClass);
                     classTimetable.setSchoolDays(schoolDays);
@@ -293,9 +273,6 @@ public class GeneticAlgo {
 
     private List<SchoolTimetable> getPopulation() {
         List<SchoolTimetable> schoolTimetables = new ArrayList<>();
-//        for (int i = 0; i < geneticAlgoConfig.getPopulationSize(); i++) {
-//            schoolTimetables.add(getRandomSchoolTimetable());
-//        }
         IntStream.range(0, geneticAlgoConfig.getPopulationSize())
                 .forEach(i -> schoolTimetables.add(getRandomSchoolTimetable()));
         return schoolTimetables;
@@ -329,24 +306,10 @@ public class GeneticAlgo {
         List<SchoolDay> p1Days = p1.getSchoolDays();
         List<SchoolDay> p2Days = p2.getSchoolDays();
         List<SchoolDay> offspringDays = new ArrayList<>();
-
-//        for (int i = 0; i < p1Days.size(); i++) {
-//            offspringDays.add(getOffspring(p1Days.get(i), p2Days.get(i)));
-//        }
-
-//        IntStream.range(0, p1Days.size())
-//                .forEach(i -> {
-//                    offspringDays.add(getOffspring(p1Days.get(i), p2Days.get(i)));
-//                });
-
-        Map<SchoolDay, SchoolDay> d1d2;
-        List<SchoolDay> keys = p1Days;
-        List<SchoolDay> values = p2Days;
-        d1d2 = IntStream.range(0, keys.size()).boxed().collect(Collectors.toMap(keys::get, values::get));
-        d1d2.entrySet().stream().forEach(schoolDaySchoolDayEntry ->
-                offspringDays.add(getOffspring(schoolDaySchoolDayEntry.getValue(), schoolDaySchoolDayEntry.getKey()))
-        );
-
+        IntStream.range(0, p1.getSchoolDays().size())
+                .boxed()
+                .collect(Collectors.toMap(p1Days::get, p2Days::get))
+                .forEach((key, value) -> offspringDays.add(getOffspring(value, key)));
         offspring.setSchoolDays(offspringDays);
         return offspring;
     }
