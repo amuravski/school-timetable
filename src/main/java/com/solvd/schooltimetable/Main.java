@@ -43,9 +43,8 @@ public class Main {
         if (geneticAlgoConfig.getMinLessons() * schoolClasses.size() > teachers.size()) {
             throw new RuntimeException("Not enough teachers for this number of classes.");
         }
-        int n = 64;
+        int n = 128;
         long t = System.currentTimeMillis();
-        schoolClasses.remove(0);
         schoolClasses.remove(0);
         LOGGER.info("Number of classes: " + schoolClasses.size());
         Optional<SchoolTimetable> generated =
