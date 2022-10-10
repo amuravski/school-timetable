@@ -28,7 +28,11 @@ public class GeneticAlgoConfig {
 
     public GeneticAlgoConfig(String geneticAlgoConfigName) {
         Properties geneticAlgoConfigProperties = new Properties();
-        File propertiesFile = new File(MybatisConfig.class.getClassLoader().getResource(geneticAlgoConfigName).getFile());
+        String path = MybatisConfig.class.getClassLoader().getResource(geneticAlgoConfigName).getFile();
+        if (path.contains("jar!")) {
+            path = geneticAlgoConfigName;
+        }
+        File propertiesFile = new File(path);
         try (FileInputStream f = new FileInputStream(propertiesFile)) {
             geneticAlgoConfigProperties.load(f);
         } catch (IOException e) {

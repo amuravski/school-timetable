@@ -13,7 +13,11 @@ public class MybatisConfig {
     public static final SqlSessionFactory SQL_SESSION_FACTORY;
 
     static {
-        File propertiesFile = new File(MybatisConfig.class.getClassLoader().getResource(CONFIG_FILE_NAME).getFile());
+        String path = MybatisConfig.class.getClassLoader().getResource(CONFIG_FILE_NAME).getFile();
+        if (path.contains("jar!")) {
+            path = CONFIG_FILE_NAME;
+        }
+        File propertiesFile = new File(path);
         try (FileInputStream fis = new FileInputStream(propertiesFile)) {
             SQL_SESSION_FACTORY = new SqlSessionFactoryBuilder().build(fis);
         } catch (IOException e) {

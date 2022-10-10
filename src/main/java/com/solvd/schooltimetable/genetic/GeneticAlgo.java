@@ -18,29 +18,12 @@ public class GeneticAlgo {
     private List<Teacher> teachers;
     private List<CalendarDay> calendarDays;
     private SchoolTimetable currentBest;
-    private double currentBestFitness;
     private int numberOfSubjectsWithTeachers;
     private Set<Subject> allSubjects;
 
     public GeneticAlgo(GeneticAlgoConfig geneticAlgoConfig) {
         this.geneticAlgoConfig = geneticAlgoConfig;
         historicalAverageFitness = new ArrayList<>();
-    }
-
-    public int getNumberOfSubjectsWithTeachers() {
-        return numberOfSubjectsWithTeachers;
-    }
-
-    public List<SchoolClass> getSchoolClasses() {
-        return schoolClasses;
-    }
-
-    public List<Teacher> getTeachers() {
-        return teachers;
-    }
-
-    public SchoolTimetable getCurrentBest() {
-        return currentBest;
     }
 
     public GeneticAlgoConfig getGeneticAlgoConfig() {
@@ -51,14 +34,54 @@ public class GeneticAlgo {
         return historicalAverageFitness;
     }
 
-    public double getCurrentBestFitness() {
-        return currentBestFitness;
+    public List<SchoolClass> getSchoolClasses() {
+        return schoolClasses;
+    }
+
+    public void setSchoolClasses(List<SchoolClass> schoolClasses) {
+        this.schoolClasses = schoolClasses;
+    }
+
+    public List<CalendarDay> getCalendarDays() {
+        return calendarDays;
+    }
+
+    public void setCalendarDays(List<CalendarDay> calendarDays) {
+        this.calendarDays = calendarDays;
+    }
+
+    public SchoolTimetable getCurrentBest() {
+        return currentBest;
+    }
+
+    public int getNumberOfSubjectsWithTeachers() {
+        return numberOfSubjectsWithTeachers;
+    }
+
+    public void setNumberOfSubjectsWithTeachers(int numberOfSubjectsWithTeachers) {
+        this.numberOfSubjectsWithTeachers = numberOfSubjectsWithTeachers;
+    }
+
+    public Set<Subject> getAllSubjects() {
+        return allSubjects;
+    }
+
+    public List<Teacher> getTeachers() {
+        return teachers;
+    }
+
+    public void setTeachers(List<Teacher> teachers) {
+        this.teachers = teachers;
+        this.allSubjects = this.teachers.stream()
+                .map(Teacher::getSubject)
+                .collect(Collectors.toSet());
+        this.numberOfSubjectsWithTeachers = this.allSubjects.size();
     }
 
     public void run() {
         List<SchoolTimetable> population = getPopulation();
         for (int i = 0; i < geneticAlgoConfig.getMaxIterations(); i++) {
-            if (i != 0 && isGood(false)) {
+            if (i >= geneticAlgoConfig.getMaxIterations() / 3 && isGood(false)) {
                 return;
             }
             population = iterateGeneration(population);
@@ -83,6 +106,7 @@ public class GeneticAlgo {
                 .stream()
                 .flatMap(schoolDay -> schoolDay.getLessons().stream())
                 .collect(Collectors.toList()))
+                .parallel()
                 .collect(Collectors.toList());
         if (lessons.stream()
                 .map(allClassLessons -> allClassLessons
@@ -142,6 +166,7 @@ public class GeneticAlgo {
                 .stream()
                 .flatMap(schoolDay -> schoolDay.getLessons().stream())
                 .collect(Collectors.toList()))
+                .parallel()
                 .collect(Collectors.toList());
         for (int i = 0; i < lessons.size() - 1; i++) {
             for (int j = i + 1; j < lessons.size(); j++) {
@@ -168,9 +193,9 @@ public class GeneticAlgo {
                 .map(allClassLessons -> allClassLessons
                         .stream()
                         .map(lesson -> lesson.getTeacher().getSubject())
-                        .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))).
-                        peek(subjectLongMap -> allSubjects
-                                .forEach(subject -> subjectLongMap.putIfAbsent(subject, (long) -8 * geneticAlgoConfig.getMaxLessons())))
+                        .collect(Collectors.groupingBy(Function.identity(), Collectors.counting())))
+                .peek(subjectLongMap -> allSubjects
+                        .forEach(subject -> subjectLongMap.putIfAbsent(subject, (long) -8 * geneticAlgoConfig.getMaxLessons())))
                 .map(subjectLongMap -> computeStandardDeviation(subjectLongMap.values()))
                 .reduce(Double::sum)
                 .get();
@@ -179,14 +204,13 @@ public class GeneticAlgo {
     private List<SchoolTimetable> iterateGeneration(List<SchoolTimetable> population) {
         List<SchoolTimetable> rated = getRatedPopulation(population);
         currentBest = rated.get(0);
-        currentBestFitness = getFitness(rated.get(0));
         List<SchoolTimetable> newPopulation = new ArrayList<>();
         if (geneticAlgoConfig.isElitism()) {
             newPopulation.addAll(rated.subList(0,
-                    population.size() / 100 * geneticAlgoConfig.getGenerationPercentileThreshold()));
+                    (int) (population.size() / 100.) * geneticAlgoConfig.getGenerationPercentileThreshold()));
         }
         List<SchoolTimetable> willCross = new ArrayList<>(rated.subList(0,
-                population.size() / 100 * geneticAlgoConfig.getElitismPercentileThreshold()));
+                (int) (population.size() / 100.) * geneticAlgoConfig.getElitismPercentileThreshold()));
         List<SchoolTimetable> shuffledWillCross = new ArrayList<>(willCross);
         Collections.shuffle(shuffledWillCross);
         int lastElementIndex = willCross.size() - 1;
@@ -197,9 +221,9 @@ public class GeneticAlgo {
             List<SchoolTimetable> luckys = new ArrayList<>(population);
             luckys.removeAll(newPopulation);
             luckys.removeAll(willCross);
-            Collections.shuffle(population);
+            Collections.shuffle(luckys);
             newPopulation.addAll(luckys.stream()
-                    .limit(population.size() / 100 * geneticAlgoConfig.getLuckyPercentileThreshold())
+                    .limit((int) (population.size() / 100.) * geneticAlgoConfig.getLuckyPercentileThreshold())
                     .map(lucky -> getOffspring(lucky, shuffledWillCross.get((int) (Math.random() * shuffledWillCross.size()))))
                     .collect(Collectors.toList()));
         }
@@ -231,19 +255,6 @@ public class GeneticAlgo {
                 .getAsDouble();
         historicalAverageFitness.add(averageFitness);
         return new ArrayList<>(sortedMap.keySet());
-    }
-
-    private SchoolTimetable getOffspring(SchoolTimetable p1, SchoolTimetable p2) {
-        SchoolTimetable offspring = new SchoolTimetable();
-        offspring.setClassTimetables(new ArrayList<>());
-        List<ClassTimetable> p1TimeTables = p1.getClassTimetables();
-        List<ClassTimetable> p2TimeTables = p2.getClassTimetables();
-        List<ClassTimetable> offspringTimetables = new ArrayList<>();
-        for (int i = 0; i < p1TimeTables.size(); i++) {
-            offspringTimetables.add(getOffspring(p1TimeTables.get(i), p2TimeTables.get(i)));
-        }
-        offspring.setClassTimetables(offspringTimetables);
-        return offspring;
     }
 
     private SchoolTimetable getRandomSchoolTimetable() {
@@ -279,44 +290,40 @@ public class GeneticAlgo {
     }
 
     private List<SchoolTimetable> getPopulation() {
-        List<SchoolTimetable> schoolTimetables = new ArrayList<>();
-        for (int i = 0; i < geneticAlgoConfig.getPopulationSize(); i++) {
-            schoolTimetables.add(getRandomSchoolTimetable());
-        }
-        return schoolTimetables;
+        return IntStream.range(0, geneticAlgoConfig.getPopulationSize())
+                .parallel()
+                .boxed()
+                .map(i -> getRandomSchoolTimetable())
+                .collect(Collectors.toList());
     }
 
     private void complementPopulation(List<SchoolTimetable> schoolTimetables) {
         int currentPopulationSize = schoolTimetables.size();
         int complementPopulationSize = geneticAlgoConfig.getPopulationSize() - currentPopulationSize;
         IntStream.range(0, complementPopulationSize)
-                .forEach((i) -> schoolTimetables.add(getRandomSchoolTimetable()));
+                .forEach(i -> schoolTimetables.add(getRandomSchoolTimetable()));
     }
 
-    public void setSchoolClasses(List<SchoolClass> schoolClasses) {
-        this.schoolClasses = schoolClasses;
-    }
-
-    public void setTeachers(List<Teacher> teachers) {
-        this.teachers = teachers;
-        this.allSubjects = this.teachers.stream()
-                .map(Teacher::getSubject)
-                .collect(Collectors.toSet());
-        this.numberOfSubjectsWithTeachers = this.allSubjects.size();
-    }
-
-    public void setCalendarDays(List<CalendarDay> calendarDays) {
-        this.calendarDays = calendarDays;
+    private SchoolTimetable getOffspring(SchoolTimetable p1, SchoolTimetable p2) {
+        SchoolTimetable offspring = new SchoolTimetable();
+        List<ClassTimetable> p1Timetables = p1.getClassTimetables();
+        List<ClassTimetable> p2Timetables = p2.getClassTimetables();
+        List<ClassTimetable> offspringTimetables = IntStream.range(0, p1Timetables.size())
+                .boxed()
+                .map(i -> getOffspring(p1Timetables.get(i), p2Timetables.get(i)))
+                .collect(Collectors.toList());
+        offspring.setClassTimetables(offspringTimetables);
+        return offspring;
     }
 
     private ClassTimetable getOffspring(ClassTimetable p1, ClassTimetable p2) {
         ClassTimetable offspring = new ClassTimetable(p1.getSchoolClass());
         List<SchoolDay> p1Days = p1.getSchoolDays();
         List<SchoolDay> p2Days = p2.getSchoolDays();
-        List<SchoolDay> offspringDays = new ArrayList<>();
-        for (int i = 0; i < p1Days.size(); i++) {
-            offspringDays.add(getOffspring(p1Days.get(i), p2Days.get(i)));
-        }
+        List<SchoolDay> offspringDays = IntStream.range(0, p1Days.size())
+                .boxed()
+                .map(i -> getOffspring(p1Days.get(i), p2Days.get(i)))
+                .collect(Collectors.toList());
         offspring.setSchoolDays(offspringDays);
         return offspring;
     }
