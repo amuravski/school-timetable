@@ -71,7 +71,7 @@ public class SchoolDay {
 
     @Override
     public String toString() {
-        return "SchoolDay{" +
+        return "\nSchoolDay{" +
                 "id=" + id +
                 ", classTimetableId=" + classTimetableId +
                 ", calendarDay=" + calendarDay +
