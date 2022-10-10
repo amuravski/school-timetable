@@ -33,6 +33,12 @@ public class Main {
         List<CalendarDay> calendarDays = calendarDayService.findAll();
 
         GeneticAlgoConfig geneticAlgoConfig = new GeneticAlgoConfig("geneticAlgoConfig.properties");
+        GeneticAlgo geneticAlgo = new GeneticAlgo(geneticAlgoConfig);
+
+        geneticAlgo.setSchoolClasses(schoolClasses);
+        geneticAlgo.setTeachers(teachers);
+        geneticAlgo.setCalendarDays(calendarDays);
+        checkArguments(geneticAlgo);
 
         int n = 128;
         long t = System.currentTimeMillis();
@@ -43,8 +49,6 @@ public class Main {
                         .boxed()
                         .map(i -> {
                             GeneticAlgo geneticAlgoThread = new GeneticAlgo(geneticAlgoConfig);
-                            checkArguments(geneticAlgoThread);
-                            //todo checkArgs to geneticAlgo
                             geneticAlgoThread.setSchoolClasses(schoolClasses);
                             geneticAlgoThread.setTeachers(teachers);
                             geneticAlgoThread.setCalendarDays(calendarDays);
