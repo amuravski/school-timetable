@@ -56,6 +56,12 @@ public class SchoolTimetable {
 
     @Override
     public String toString() {
+        return "SchoolTimetable{" +
+                "classTimetables=" + classTimetables +
+                '}';
+    }
+
+    public String toTableString() {
         List<Lesson> lessons;
         List<String> stringOut;
         int lessonsNumberInDay;

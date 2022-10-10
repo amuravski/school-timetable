@@ -33,11 +33,6 @@ public class Main {
         List<CalendarDay> calendarDays = calendarDayService.findAll();
 
         GeneticAlgoConfig geneticAlgoConfig = new GeneticAlgoConfig("geneticAlgoConfig.properties");
-        GeneticAlgo geneticAlgo = new GeneticAlgo(geneticAlgoConfig);
-        geneticAlgo.setSchoolClasses(schoolClasses);
-        geneticAlgo.setTeachers(teachers);
-        geneticAlgo.setCalendarDays(calendarDays);
-        checkArguments(geneticAlgo);
 
         int n = 128;
         long t = System.currentTimeMillis();
@@ -48,6 +43,8 @@ public class Main {
                         .boxed()
                         .map(i -> {
                             GeneticAlgo geneticAlgoThread = new GeneticAlgo(geneticAlgoConfig);
+                            checkArguments(geneticAlgoThread);
+                            //todo checkArgs to geneticAlgo
                             geneticAlgoThread.setSchoolClasses(schoolClasses);
                             geneticAlgoThread.setTeachers(teachers);
                             geneticAlgoThread.setCalendarDays(calendarDays);
@@ -57,9 +54,9 @@ public class Main {
                         .filter(thread -> thread.isGood(true))
                         .map(GeneticAlgo::getCurrentBest)
                         .findAny();
+        LOGGER.info("Elapsed time: "+(System.currentTimeMillis() - t)/1000.);
         LOGGER.info(generated
                 .orElseThrow(() -> new RuntimeException("Unable to generate timetable with such arguments.")));
-        LOGGER.info(System.currentTimeMillis() - t);
     }
 
     private static void checkArguments(GeneticAlgo geneticAlgo) {
