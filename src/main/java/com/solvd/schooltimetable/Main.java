@@ -37,58 +37,10 @@ public class Main {
         geneticAlgo.setSchoolClasses(schoolClasses);
         geneticAlgo.setTeachers(teachers);
         geneticAlgo.setCalendarDays(calendarDays);
-        if (geneticAlgoConfig.getMinWorkDays() <= 0) {
-            throw new RuntimeException("No working days on this week.");
-        }
-        if (geneticAlgoConfig.getMinWorkDays() > 7) {
-            throw new RuntimeException("Working days more then 7 in a week.");
-        }
-        if (geneticAlgoConfig.getMinLessons() > geneticAlgoConfig.getMaxLessons()) {
-            throw new RuntimeException("Min quantity of lessons more then max quantity of lessons.");
-        }
-        if (geneticAlgoConfig.getMinLessons() < 1) {
-            throw new RuntimeException("Min quantity of lessons less 1.");
-        }
-        if (geneticAlgoConfig.getMaxLessons() > 9) {
-            throw new RuntimeException("Max quantity of lessons more 9.");
-        }
-        if (geneticAlgoConfig.getMaxLessons() * geneticAlgoConfig.getMinWorkDays() < geneticAlgo.getNumberOfSubjectsWithTeachers()) {
-            throw new RuntimeException("Not enough lessons in week to include all subjects.");
-        if (geneticAlgoConfig.getMinLessons() * geneticAlgoConfig.getMinWorkDays() < geneticAlgo.getNumberOfSubjectsWithTeachers()) {
-            throw new RuntimeException("Not enough lessons in a week to include all subjects.");
-        }
-        if (geneticAlgoConfig.getMinLessons() * schoolClasses.size() > teachers.size()) {
-            throw new RuntimeException("Not enough teachers for this number of classes.");
-        }
-        if (geneticAlgoConfig.getElitismPercentileThreshold() < 1) {
-            throw new RuntimeException("Not enough ElitismPercentileThreshold.");
-        }
-        if (geneticAlgoConfig.getGenerationPercentileThreshold() < 0) {
-            throw new RuntimeException("Not enough GenerationPercentileThreshold.");
-        }
-        if (geneticAlgoConfig.getLuckyPercentileThreshold() < 1) {
-            throw new RuntimeException("Not enough LuckyPercentileThreshold.");
-        }
-        if (geneticAlgoConfig.getMutationChance() < 0) {
-            throw new RuntimeException("Not enough MutationChance.");
-        }
-        if (geneticAlgoConfig.getElitismPercentileThreshold() + geneticAlgoConfig.getGenerationPercentileThreshold() +
-                geneticAlgoConfig.getLuckyPercentileThreshold() > 99) {
-            throw new RuntimeException("Common percentiles = or more then 100.");
-        }
-        if (geneticAlgoConfig.getMutationChance() > 100) {
-            throw new RuntimeException("MutationChance more then 100.");
-        }
-        if (geneticAlgoConfig.getPopulationSize() < 100) {
-            throw new RuntimeException("Not enough PopulationSize.");
-        }
-        if (geneticAlgoConfig.getMaxIterations() < 50 * (int) Math.pow(schoolClasses.size(), 3)) {
-            int maxIteration = 50 * (int) Math.pow(schoolClasses.size(), 3);
-            throw new RuntimeException("Not enough MaxIterations. Should be more then " + maxIteration);
-        }
+        checkArguments(geneticAlgo);
+
         int n = 128;
         long t = System.currentTimeMillis();
-        schoolClasses.remove(0);
         LOGGER.info("Number of classes: " + schoolClasses.size());
         Optional<SchoolTimetable> generated =
                 IntStream.range(0, n)
@@ -108,5 +60,62 @@ public class Main {
         LOGGER.info(generated
                 .orElseThrow(() -> new RuntimeException("Unable to generate timetable with such arguments.")));
         LOGGER.info(System.currentTimeMillis() - t);
+    }
+
+    private static void checkArguments(GeneticAlgo geneticAlgo) {
+        GeneticAlgoConfig geneticAlgoConfig = geneticAlgo.getGeneticAlgoConfig();
+        int classNumber = geneticAlgo.getSchoolClasses().size();
+        int teachersAmount = geneticAlgo.getTeachers().size();
+        if (geneticAlgoConfig.getMinWorkDays() <= 0) {
+            throw new RuntimeException("No working days in a week.");
+        }
+        if (geneticAlgoConfig.getMinWorkDays() > 7) {
+            throw new RuntimeException("More than 7 days in a week.");
+        }
+        if (geneticAlgoConfig.getMinLessons() > geneticAlgoConfig.getMaxLessons()) {
+            throw new RuntimeException("Min quantity of lessons bigger than max quantity of lessons.");
+        }
+        if (geneticAlgoConfig.getMinLessons() < 1) {
+            throw new RuntimeException("Min quantity of lessons less than 1.");
+        }
+        if (geneticAlgoConfig.getMaxLessons() > 9) {
+            throw new RuntimeException("Max quantity of lessons more than 9.");
+        }
+        if (geneticAlgoConfig.getMaxLessons() * geneticAlgoConfig.getMinWorkDays() < geneticAlgo.getNumberOfSubjectsWithTeachers()) {
+            throw new RuntimeException("Not enough lessons in week to include all subjects.");
+        }
+        if (geneticAlgoConfig.getMinLessons() * geneticAlgoConfig.getMinWorkDays() < geneticAlgo.getNumberOfSubjectsWithTeachers()) {
+            throw new RuntimeException("Not enough lessons in a week to include all subjects.");
+        }
+        if (geneticAlgoConfig.getMinLessons() * classNumber > teachersAmount) {
+            throw new RuntimeException("Not enough teachers for this number of classes.");
+        }
+        if (geneticAlgoConfig.getElitismPercentileThreshold() < 1 && geneticAlgoConfig.isElitism()) {
+            throw new RuntimeException("ElitismPercentileThreshold is too low.");
+        }
+        if (geneticAlgoConfig.getGenerationPercentileThreshold() < 1) {
+            throw new RuntimeException("GenerationPercentileThreshold is too low.");
+        }
+        if (geneticAlgoConfig.getLuckyPercentileThreshold() < 1 && geneticAlgoConfig.isElitism()) {
+            throw new RuntimeException("LuckyPercentileThreshold is too low.");
+        }
+        if (geneticAlgoConfig.getMutationChance() < 1) {
+            throw new RuntimeException("MutationChance is too low.");
+        }
+        if (geneticAlgoConfig.getElitismPercentileThreshold() + geneticAlgoConfig.getGenerationPercentileThreshold() +
+                geneticAlgoConfig.getLuckyPercentileThreshold() >= 100) {
+            throw new RuntimeException("Common percentiles equal or more than 100.");
+        }
+        if (geneticAlgoConfig.getMutationChance() > 100) {
+            throw new RuntimeException("MutationChance more than 100.");
+        }
+        if (geneticAlgoConfig.getPopulationSize() < 100) {
+            geneticAlgoConfig.setPopulationSize(100);
+            LOGGER.info("PopulationSize is too low. PopulationSize changed to: " + geneticAlgoConfig.getPopulationSize());
+        }
+        if (geneticAlgoConfig.getMaxIterations() < 100 * (int) Math.pow(classNumber, 2)) {
+            geneticAlgoConfig.setMaxIterations(100 * (int) Math.pow(classNumber, 2));
+            LOGGER.info("Not enough MaxIterations. MaxIterations changed to: " + geneticAlgoConfig.getMaxIterations());
+        }
     }
 }

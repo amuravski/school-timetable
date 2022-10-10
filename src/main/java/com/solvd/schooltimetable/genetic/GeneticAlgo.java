@@ -31,6 +31,14 @@ public class GeneticAlgo {
         return numberOfSubjectsWithTeachers;
     }
 
+    public List<SchoolClass> getSchoolClasses() {
+        return schoolClasses;
+    }
+
+    public List<Teacher> getTeachers() {
+        return teachers;
+    }
+
     public SchoolTimetable getCurrentBest() {
         return currentBest;
     }
