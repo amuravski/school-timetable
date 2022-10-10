@@ -2,6 +2,7 @@ package com.solvd.schooltimetable;
 
 import com.solvd.schooltimetable.domain.CalendarDay;
 import com.solvd.schooltimetable.domain.SchoolClass;
+import com.solvd.schooltimetable.domain.SchoolTimetable;
 import com.solvd.schooltimetable.domain.Teacher;
 import com.solvd.schooltimetable.genetic.GeneticAlgo;
 import com.solvd.schooltimetable.genetic.GeneticAlgoConfig;
@@ -15,7 +16,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Optional;
 import java.util.stream.IntStream;
 
 public class Main {
@@ -36,30 +37,34 @@ public class Main {
         geneticAlgo.setSchoolClasses(schoolClasses);
         geneticAlgo.setTeachers(teachers);
         geneticAlgo.setCalendarDays(calendarDays);
-        if (geneticAlgoConfig.getMaxLessons() * geneticAlgoConfig.getMinWorkDays() < geneticAlgo.getNumberOfSubjectsWithTeachers()) {
-            throw new RuntimeException("Not enough lessons in week to include all subjects.");
+        if (geneticAlgoConfig.getMinLessons() * geneticAlgoConfig.getMinWorkDays() < geneticAlgo.getNumberOfSubjectsWithTeachers()) {
+            throw new RuntimeException("Not enough lessons in a week to include all subjects.");
         }
         if (geneticAlgoConfig.getMinLessons() * schoolClasses.size() > teachers.size()) {
             throw new RuntimeException("Not enough teachers for this number of classes.");
         }
-        int n = 2;
+        int n = 64;
         long t = System.currentTimeMillis();
-        AtomicInteger ideals = new AtomicInteger(0);
-        LOGGER.info(IntStream.range(0, n).parallel().boxed()
-                .map(i -> new GeneticAlgo(geneticAlgoConfig))
-                .mapToDouble(i -> {
-                    i.setSchoolClasses(schoolClasses);
-                    i.setTeachers(teachers);
-                    i.setCalendarDays(calendarDays);
-                    i.run();
-                    if (i.isGood()) {
-                        ideals.incrementAndGet();
-                    }
-                    return i.getCurrentBestFitness();
-                })
-                .filter(Double::isFinite)
-                .average().getAsDouble());
-        LOGGER.info("Ideals out of " + n + ": " + ideals.get());
+        schoolClasses.remove(0);
+        schoolClasses.remove(0);
+        LOGGER.info("Number of classes: " + schoolClasses.size());
+        Optional<SchoolTimetable> generated =
+                IntStream.range(0, n)
+                        .parallel()
+                        .boxed()
+                        .map(i -> {
+                            GeneticAlgo geneticAlgoThread = new GeneticAlgo(geneticAlgoConfig);
+                            geneticAlgoThread.setSchoolClasses(schoolClasses);
+                            geneticAlgoThread.setTeachers(teachers);
+                            geneticAlgoThread.setCalendarDays(calendarDays);
+                            geneticAlgoThread.run();
+                            return geneticAlgoThread;
+                        })
+                        .filter(thread -> thread.isGood(true))
+                        .map(GeneticAlgo::getCurrentBest)
+                        .findAny();
+        LOGGER.info(generated
+                .orElseThrow(() -> new RuntimeException("Unable to generate timetable with such arguments.")));
         LOGGER.info(System.currentTimeMillis() - t);
     }
 }

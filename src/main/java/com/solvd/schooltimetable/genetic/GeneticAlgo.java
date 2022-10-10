@@ -50,14 +50,14 @@ public class GeneticAlgo {
     public void run() {
         List<SchoolTimetable> population = getPopulation();
         for (int i = 0; i < geneticAlgoConfig.getMaxIterations(); i++) {
-            if (i != 0 && isGood()) {
+            if (i != 0 && isGood(false)) {
                 return;
             }
             population = iterateGeneration(population);
         }
     }
 
-    public boolean isGood() {
+    public boolean isGood(boolean show) {
         SchoolTimetable schoolTimetable = currentBest;
         Supplier<Stream<List<SchoolDay>>> daysSupplier = () -> schoolTimetable.getClassTimetables().stream()
                 .map(ClassTimetable::getSchoolDays);
@@ -66,7 +66,9 @@ public class GeneticAlgo {
                         .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
                         .values().stream()
                         .anyMatch(value -> value > 1))) {
-            //System.out.println("Contains non unique subjects.");
+            if (show) {
+                System.out.println("Contains non unique subjects.");
+            }
             return false;
         }
         List<List<Lesson>> lessons = daysSupplier.get().map(schoolDays -> schoolDays
@@ -81,7 +83,9 @@ public class GeneticAlgo {
                         .collect(Collectors.groupingBy(Function.identity(), Collectors.counting())))
                 .map(Map::size)
                 .anyMatch(numberOfSubjectsInWeek -> numberOfSubjectsInWeek < numberOfSubjectsWithTeachers)) {
-            //System.out.println("Not all subjects included.");
+            if (show) {
+                System.out.println("Not all subjects included.");
+            }
             return false;
         }
 
@@ -99,7 +103,9 @@ public class GeneticAlgo {
                         continue;
                     }
                     if (lessons.get(i).get(ic).getTeacher().equals(lessons.get(j).get(jc).getTeacher())) {
-                        //System.out.println("Contains paralleled teacher.");
+                        if (show) {
+                            System.out.println("Contains paralleled teacher.");
+                        }
                         return false;
                     }
                     ic++;
@@ -114,7 +120,6 @@ public class GeneticAlgo {
         Double fitness = 0.;
         Supplier<Stream<List<SchoolDay>>> daysSupplier = () -> schoolTimetable.getClassTimetables().stream()
                 .map(ClassTimetable::getSchoolDays);
-
         if (daysSupplier.get().flatMap(Collection::stream)
                 .anyMatch(schoolDay -> schoolDay.getLessons().stream().map(lesson -> lesson.getTeacher().getSubject())
                         .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
@@ -131,7 +136,7 @@ public class GeneticAlgo {
                 .flatMap(schoolDay -> schoolDay.getLessons().stream())
                 .collect(Collectors.toList()))
                 .collect(Collectors.toList());
-
+        int paralleledTeachers = 0;
         for (int i = 0; i < lessons.size() - 1; i++) {
             for (int j = i + 1; j < lessons.size(); j++) {
                 int ic = 0;
@@ -153,7 +158,7 @@ public class GeneticAlgo {
                 }
             }
         }
-        return fitness + 2 / lessons.stream()
+        var stds = lessons.stream()
                 .map(allClassLessons -> allClassLessons
                         .stream()
                         .map(lesson -> lesson.getTeacher().getSubject())
@@ -163,6 +168,8 @@ public class GeneticAlgo {
                 .map(subjectLongMap -> computeStandardDeviation(subjectLongMap.values()))
                 .reduce(Double::sum)
                 .get();
+        var result = fitness + 4 / stds;
+        return result;
     }
 
     private List<SchoolTimetable> iterateGeneration(List<SchoolTimetable> population) {
