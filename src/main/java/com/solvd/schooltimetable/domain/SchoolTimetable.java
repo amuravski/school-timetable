@@ -86,12 +86,14 @@ public class SchoolTimetable {
                 .sorted((ct1, ct2) -> -ct2.getSchoolClass().getId().compareTo(ct1.getSchoolClass().getId()));
         stringOut.add(sortedClassTimetablesSupplier.get()
                 .map(classTimetable ->
-                        String.format("                       %4s class                   ", classTimetable.getSchoolClass().getName()))
+                        String.format("                       %4s class                   ",
+                                classTimetable.getSchoolClass().getName()))
                 .collect(Collectors.joining()));
         stringOut.add(" \n" + lineRepeat1 + "+\n");
 
         for (long j = 1L; j < weekWorkDaysNames.size() + 1; j++) {
-            String strDay = String.format("Day %s - %-12s ", j, weekWorkDaysNames.get(Math.toIntExact(j - 1)).getName());
+            String strDay = String.format("Day %s - %-12s ", j,
+                    weekWorkDaysNames.get(Math.toIntExact(j - 1)).getName());
             String titleDay = "|                    " + strDay + "          ";
             String titleDayRepeat = new String(new char[numberOfClasses]).replace("\0", titleDay);
             stringOut.add(titleDayRepeat + "|\n");
@@ -117,7 +119,8 @@ public class SchoolTimetable {
                 int finalI = i;
                 stringOut.add(lessons.stream()
                         .filter(lesson -> (lesson.getLessonNumber().equals(finalI)))
-                        .map(lesson -> String.format("| %-1s   %-22s | %-20s ", lesson.getLessonNumber(), lesson.getTeacher().getSubject().getName(), lesson.getTeacher().getFullName()))
+                        .map(lesson -> String.format("| %-1s   %-22s | %-20s ", lesson.getLessonNumber(),
+                                lesson.getTeacher().getSubject().getName(), lesson.getTeacher().getFullName()))
                         .collect(Collectors.joining()));
                 stringOut.add("|\n");
             }

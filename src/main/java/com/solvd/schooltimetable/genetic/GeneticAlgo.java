@@ -55,10 +55,6 @@ public class GeneticAlgo {
         this.schoolClasses = schoolClasses;
     }
 
-    public List<CalendarDay> getCalendarDays() {
-        return calendarDays;
-    }
-
     public void setCalendarDays(List<CalendarDay> calendarDays) {
         this.calendarDays = calendarDays;
     }
@@ -67,33 +63,36 @@ public class GeneticAlgo {
         return currentBest;
     }
 
-    public double getCurrentBestFitness() {
-        return currentBestFitness;
+    public Optional<SchoolTimetable> runAsync(int n) {
+        checkArgumentsAlgo();
+        return IntStream.range(0, n)
+                .parallel()
+                .boxed()
+                .map(i -> {
+                    GeneticAlgo geneticAlgoThread = new GeneticAlgo(geneticAlgoConfig);
+                    geneticAlgoThread.setSchoolClasses(schoolClasses);
+                    geneticAlgoThread.setTeachers(teachers);
+                    geneticAlgoThread.setCalendarDays(calendarDays);
+                    geneticAlgoThread.run();
+                    return geneticAlgoThread;
+                })
+                .filter(GeneticAlgo::isGood)
+                .peek(GeneticAlgo::generateAndSetHashcode)
+                .map(GeneticAlgo::getCurrentBest)
+                .findAny();
     }
 
-    public int getNumberOfSubjectsWithTeachers() {
-        return numberOfSubjectsWithTeachers;
-    }
-
-    public Set<Subject> getAllSubjects() {
-        return allSubjects;
-    }
-
-    public void generateAndSetHashcode() {
-        currentBest.setHashcode(Objects.hash(
-                teachers,
-                schoolClasses,
-                calendarDays,
+    private void generateAndSetHashcode() {
+        currentBest.setHashcode(Objects.hash(teachers, schoolClasses, calendarDays,
                 geneticAlgoConfig.getMinWorkDays(),
                 geneticAlgoConfig.getMinLessons(),
                 geneticAlgoConfig.getMaxLessons()));
     }
 
-    public void run() {
-        checkArgumentsAlgo();
+    private void run() {
         List<SchoolTimetable> population = getPopulation();
         for (int i = 0; i < geneticAlgoConfig.getMaxIterations(); i++) {
-            if (i > geneticAlgoConfig.getMaxIterations() / 5 && isGood(false)) {
+            if (i > geneticAlgoConfig.getMaxIterations() / 5 && isGood()) {
                 return;
             }
             population = iterateGeneration(population);
@@ -104,148 +103,125 @@ public class GeneticAlgo {
         GeneticAlgoConfig geneticAlgoConfig = getGeneticAlgoConfig();
         int classNumber = getSchoolClasses().size();
         int teachersAmount = getTeachers().size();
-        if (geneticAlgoConfig.getMaxLessons() * geneticAlgoConfig.getMinWorkDays() < numberOfSubjectsWithTeachers) {
-            throw new RuntimeException("Not enough lessons in week to include all subjects.");
-        }
-        if (geneticAlgoConfig.getMinLessons() * geneticAlgoConfig.getMinWorkDays() < numberOfSubjectsWithTeachers) {
+        if ((geneticAlgoConfig.getMinLessons() + geneticAlgoConfig.getMaxLessons()) / 2 * geneticAlgoConfig.getMinWorkDays()
+                < numberOfSubjectsWithTeachers
+                || geneticAlgoConfig.getMaxLessons() * geneticAlgoConfig.getMinWorkDays()
+                < numberOfSubjectsWithTeachers) {
             throw new RuntimeException("Not enough lessons in a week to include all subjects.");
         }
         if (geneticAlgoConfig.getMinLessons() * classNumber > teachersAmount) {
             throw new RuntimeException("Not enough teachers for this number of classes.");
         }
-        if (geneticAlgoConfig.getMaxIterations() < 100 * (int) Math.pow(classNumber, 2)) {
-            geneticAlgoConfig.setMaxIterations(100 * (int) Math.pow(classNumber, 2));
-            LOGGER.info("Not enough MaxIterations. MaxIterations changed to: " + geneticAlgoConfig.getMaxIterations());
+        if (geneticAlgoConfig.getMaxIterations() < 150 * (int) Math.pow(classNumber, 2)) {
+            geneticAlgoConfig.setMaxIterations(150 * (int) Math.pow(classNumber, 2));
+            LOGGER.info(
+                    "Not enough MaxIterations. MaxIterations changed to: " + geneticAlgoConfig.getMaxIterations());
         }
     }
 
-    public boolean isGood(boolean show) {
+    private boolean isGood() {
         SchoolTimetable schoolTimetable = currentBest;
         Supplier<Stream<List<SchoolDay>>> daysSupplier = () -> schoolTimetable.getClassTimetables().stream()
                 .map(ClassTimetable::getSchoolDays);
-        if (daysSupplier.get()
-                .flatMap(Collection::stream)
-                .anyMatch(schoolDay -> schoolDay.getLessons().stream()
-                        .map(lesson -> lesson.getTeacher().getSubject())
-                        .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
-                        .values()
-                        .stream()
-                        .anyMatch(value -> value > 1))) {
-            if (show) {
-                System.out.println("Contains non unique subjects.");
-            }
-            return false;
-        }
         List<List<Lesson>> lessons = daysSupplier.get().map(schoolDays -> schoolDays
                 .stream()
                 .flatMap(schoolDay -> schoolDay.getLessons().stream())
                 .collect(Collectors.toList()))
                 .collect(Collectors.toList());
-        if (lessons.stream()
+        boolean notAllSubjectsIncluded = lessons.stream()
                 .map(allClassLessons -> allClassLessons.stream()
                         .map(lesson -> lesson.getTeacher().getSubject())
                         .collect(Collectors.groupingBy(Function.identity(), Collectors.counting())))
                 .map(Map::size)
-                .anyMatch(numberOfSubjectsInWeek -> numberOfSubjectsInWeek < numberOfSubjectsWithTeachers)) {
-            if (show) {
-                System.out.println("Not all subjects included.");
-            }
-            return false;
-        }
+                .anyMatch(
+                        numberOfSubjectsInWeek -> numberOfSubjectsInWeek < numberOfSubjectsWithTeachers);
 
-        for (int i = 0; i < lessons.size() - 1; i++) {
-            for (int j = i + 1; j < lessons.size(); j++) {
-                int ic = 0;
-                int jc = 0;
-                while (ic < lessons.get(i).size() && jc < lessons.get(j).size()) {
-                    if (lessons.get(i).get(ic).getLessonNumber() < lessons.get(j).get(jc).getLessonNumber()) {
-                        jc++;
-                        continue;
-                    }
-                    else if (lessons.get(i).get(ic).getLessonNumber() > lessons.get(j).get(jc).getLessonNumber()) {
-                        ic++;
-                        continue;
-                    }
-                    if (lessons.get(i).get(ic).getTeacher().equals(lessons.get(j).get(jc).getTeacher())) {
-                        if (show) {
-                            System.out.println("Contains paralleled teacher.");
-                        }
-                        return false;
-                    }
-                    ic++;
-                    jc++;
-                }
-            }
-        }
-        return true;
+        return containsNonUniqueSubjects(daysSupplier) && countParallelTeachers(
+                lessons) > 0 && notAllSubjectsIncluded;
     }
 
     private Double getFitness(SchoolTimetable schoolTimetable) {
-        double fitness = 0.;
+        double fitness;
         Supplier<Stream<List<SchoolDay>>> daysSupplier = () -> schoolTimetable.getClassTimetables().stream()
                 .map(ClassTimetable::getSchoolDays);
-        if (daysSupplier.get().flatMap(Collection::stream)
-                .anyMatch(schoolDay -> schoolDay.getLessons().stream()
-                        .map(lesson -> lesson.getTeacher().getSubject())
-                        .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
-                        .values()
-                        .stream()
-                        .anyMatch(value -> value > 1))) {
-            fitness--;
-        }
-        else {
-            fitness++;
-        }
         List<List<Lesson>> lessons = daysSupplier.get()
                 .map(schoolDays -> schoolDays
                         .stream()
                         .flatMap(schoolDay -> schoolDay.getLessons().stream())
                         .collect(Collectors.toList()))
                 .collect(Collectors.toList());
+        fitness = 2 * (containsNonUniqueSubjects(daysSupplier) ? -1 : 1);
+        fitness -= countParallelTeachers(lessons);
+        fitness -= 4 * rateSubjectsDistribution(lessons);
+        return fitness;
+    }
+
+    private double rateSubjectsDistribution(List<List<Lesson>> lessons) {
+        return lessons.stream()
+                .map(allClassLessons -> allClassLessons.stream()
+                        .map(lesson -> lesson.getTeacher().getSubject())
+                        .collect(
+                                Collectors.groupingBy(Function.identity(), Collectors.counting()))).
+                        peek(subjectLongMap -> allSubjects
+                                .forEach(subject -> subjectLongMap
+                                        .putIfAbsent(subject,
+                                                (long) -geneticAlgoConfig.getMaxLessons())))
+                .map(subjectLongMap -> computeStandardDeviation(subjectLongMap.values()))
+                .reduce(Double::sum)
+                .orElseThrow();
+    }
+
+    private int countParallelTeachers(List<List<Lesson>> lessons) {
+        int count = 0;
         for (int i = 0; i < lessons.size() - 1; i++) {
             for (int j = i + 1; j < lessons.size(); j++) {
                 int ic = 0;
                 int jc = 0;
                 while (ic < lessons.get(i).size() && jc < lessons.get(j).size()) {
-                    if (lessons.get(i).get(ic).getLessonNumber() < lessons.get(j).get(jc).getLessonNumber()) {
+                    if (lessons.get(i).get(ic).getLessonNumber() < lessons.get(j).get(
+                            jc).getLessonNumber()) {
                         jc++;
                         continue;
                     }
-                    else if (lessons.get(i).get(ic).getLessonNumber() > lessons.get(j).get(jc).getLessonNumber()) {
+                    else if (lessons.get(i).get(ic).getLessonNumber() > lessons.get(j).get(
+                            jc).getLessonNumber()) {
                         ic++;
                         continue;
                     }
-                    if (lessons.get(i).get(ic).getTeacher().equals(lessons.get(j).get(jc).getTeacher())) {
-                        fitness--;
+                    if (lessons.get(i).get(ic).getTeacher().equals(
+                            lessons.get(j).get(jc).getTeacher())) {
+                        count++;
                     }
                     ic++;
                     jc++;
                 }
             }
         }
-        return fitness + 4 / lessons.stream()
-                .map(allClassLessons -> allClassLessons.stream()
+        return count;
+    }
+
+    private boolean containsNonUniqueSubjects(Supplier<Stream<List<SchoolDay>>> daysSupplier) {
+        return daysSupplier.get().flatMap(Collection::stream)
+                .anyMatch(schoolDay -> schoolDay.getLessons().stream()
                         .map(lesson -> lesson.getTeacher().getSubject())
-                        .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))).
-                        peek(subjectLongMap -> allSubjects
-                                .forEach(subject -> subjectLongMap
-                                        .putIfAbsent(subject, (long) -8 * geneticAlgoConfig.getMaxLessons())))
-                .map(subjectLongMap -> computeStandardDeviation(subjectLongMap.values()))
-                .reduce(Double::sum)
-                .get();
+                        .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
+                        .values()
+                        .stream()
+                        .anyMatch(value -> value > 1));
     }
 
     private List<SchoolTimetable> iterateGeneration(List<SchoolTimetable> population) {
-        List<SchoolTimetable> rated = getRatedPopulation(population);
+        List<SchoolTimetable> rated = ratePopulation(population);
         currentBest = rated.get(0);
         currentBestFitness = getFitness(rated.get(0));
         List<SchoolTimetable> newPopulation = new ArrayList<>();
+        double populationFraction = population.size() / 100.;
         if (geneticAlgoConfig.isElitism()) {
             newPopulation.addAll(rated.subList(0,
-                    population.size() / 100 * geneticAlgoConfig.getGenerationPercentileThreshold()));
+                    (int) (populationFraction * geneticAlgoConfig.getGenerationPercentileThreshold())));
         }
         List<SchoolTimetable> willCross = new ArrayList<>(rated.subList(0,
-                population.size() / 100 * geneticAlgoConfig.getElitismPercentileThreshold()));
+                (int) (populationFraction * geneticAlgoConfig.getElitismPercentileThreshold())));
         List<SchoolTimetable> shuffledWillCross = new ArrayList<>(willCross);
         Collections.shuffle(shuffledWillCross);
         int lastElementIndex = willCross.size() - 1;
@@ -258,8 +234,9 @@ public class GeneticAlgo {
             luckys.removeAll(willCross);
             Collections.shuffle(population);
             newPopulation.addAll(luckys.stream()
-                    .limit(population.size() / 100 * geneticAlgoConfig.getLuckyPercentileThreshold())
-                    .map(lucky -> getOffspring(lucky, shuffledWillCross.get((int) (Math.random() * shuffledWillCross.size()))))
+                    .limit((int) (populationFraction * geneticAlgoConfig.getLuckyPercentileThreshold()))
+                    .map(lucky -> getOffspring(lucky, shuffledWillCross.get(
+                            (int) (Math.random() * shuffledWillCross.size()))))
                     .collect(Collectors.toList()));
         }
         willCross.forEach(firstParent -> {
@@ -279,15 +256,19 @@ public class GeneticAlgo {
         return newPopulation;
     }
 
-    private List<SchoolTimetable> getRatedPopulation(List<SchoolTimetable> population) {
+    private List<SchoolTimetable> ratePopulation(List<SchoolTimetable> population) {
         Map<SchoolTimetable, Double> sortedMap = sortMapByValue(population
                 .stream()
-                .collect(Collectors.toMap(schoolTimetable -> schoolTimetable, this::getFitness, (u, v) -> u, HashMap::new)));
+                .collect(Collectors.toMap(
+                        schoolTimetable -> schoolTimetable,
+                        this::getFitness,
+                        (u, v) -> u,
+                        HashMap::new)));
         double averageFitness = sortedMap.values().stream()
                 .mapToDouble(i -> i)
                 .filter(Double::isFinite)
                 .average()
-                .getAsDouble();
+                .orElseThrow();
         historicalAverageFitness.add(averageFitness);
         return new ArrayList<>(sortedMap.keySet());
     }
@@ -374,7 +355,8 @@ public class GeneticAlgo {
         int i;
         int lessonNumber = 1;
         for (i = 0; i < Integer.min(p1Lessons.size(), p2Lessons.size()); i++) {
-            Lesson lesson = new Lesson((random.nextBoolean() ? p1Lessons.get(i) : p2Lessons.get(i)).getTeacher());
+            Lesson lesson = new Lesson(
+                    (random.nextBoolean() ? p1Lessons.get(i) : p2Lessons.get(i)).getTeacher());
             if (mutations) {
                 int chance = random.nextInt(100);
                 if (chance < geneticAlgoConfig.getMutationChance()) {
@@ -420,6 +402,7 @@ public class GeneticAlgo {
         return map.entrySet().stream()
                 .sorted((o1, o2) -> o2.getValue().compareTo(o1.getValue()))
                 .collect(Collectors
-                        .toMap(Map.Entry::getKey, Map.Entry::getValue, (u, v) -> u, LinkedHashMap::new));
+                        .toMap(Map.Entry::getKey, Map.Entry::getValue, (u, v) -> u,
+                                LinkedHashMap::new));
     }
 }

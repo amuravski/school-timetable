@@ -29,7 +29,8 @@ public class CalendarDayServiceImpl implements CalendarDayService {
     @Override
     public CalendarDay findById(Long id) {
         return calendarDayRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(String.format("CalendarDay with id [%d] not found", id)));
+                .orElseThrow(
+                        () -> new EntityNotFoundException(String.format("CalendarDay with id [%d] not found", id)));
     }
 
     @Override

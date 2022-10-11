@@ -29,7 +29,8 @@ public class SchoolClassServiceImpl implements SchoolClassService {
     @Override
     public SchoolClass findById(Long id) {
         return schoolClassRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(String.format("SchoolClass with id [%d] not found", id)));
+                .orElseThrow(
+                        () -> new EntityNotFoundException(String.format("SchoolClass with id [%d] not found", id)));
     }
 
     @Override

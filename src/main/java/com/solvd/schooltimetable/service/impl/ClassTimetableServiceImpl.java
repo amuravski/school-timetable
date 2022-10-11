@@ -35,7 +35,8 @@ public class ClassTimetableServiceImpl implements ClassTimetableService {
     @Override
     public ClassTimetable findById(Long id) {
         return classTimetableRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(String.format("ClassTimetable with id [%d] not found", id)));
+                .orElseThrow(
+                        () -> new EntityNotFoundException(String.format("ClassTimetable with id [%d] not found", id)));
     }
 
     @Override
