@@ -17,7 +17,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 public class Main {
@@ -34,21 +33,10 @@ public class Main {
         List<CalendarDay> calendarDays = calendarDayService.findAll();
 
         GeneticAlgoConfig geneticAlgoConfig = new GeneticAlgoConfig("geneticAlgoConfig.properties");
-        GeneticAlgo geneticAlgo = new GeneticAlgo(geneticAlgoConfig);
 
-        geneticAlgo.setSchoolClasses(schoolClasses);
-        geneticAlgo.setTeachers(teachers);
-        geneticAlgo.setCalendarDays(calendarDays);
-
-        int n = 16;
+        int n = 128;
         long t = System.currentTimeMillis();
-
-        schoolClasses.add(new SchoolClass("test1"));
-        schoolClasses.add(new SchoolClass("test2"));
         LOGGER.info("Number of classes: " + schoolClasses.size());
-        AtomicInteger c = new AtomicInteger(0);
-        AtomicInteger g = new AtomicInteger(0);
-        checkArguments(geneticAlgo);
         Optional<SchoolTimetable> generated =
                 IntStream.range(0, n)
                         .parallel()
@@ -59,18 +47,15 @@ public class Main {
                             geneticAlgoThread.setTeachers(teachers);
                             geneticAlgoThread.setCalendarDays(calendarDays);
                             geneticAlgoThread.run();
-                            c.incrementAndGet();
                             return geneticAlgoThread;
                         })
-                        .filter(thread -> thread.isGood(true))
+                        .filter(thread -> thread.isGood(false))
                         .map(GeneticAlgo::getCurrentBest)
-                        //.forEach(i->g.incrementAndGet());
                         .findAny();
-        //LOGGER.info("Generated: " + generated.isPresent());
-        LOGGER.info("Threads completed: " + c);
-        //LOGGER.info("Goods: " + g);
         LOGGER.info("Elapsed time: " + (System.currentTimeMillis() - t) / 1000.);
-        //generated.orElseThrow(() -> new RuntimeException("Unable to generate timetable with such arguments."));
+        LOGGER.info(generated
+                .orElseThrow(() -> new RuntimeException("Unable to generate timetable with such arguments."))
+                .toTableString());
     }
 
     private static void checkArguments(GeneticAlgo geneticAlgo) {
