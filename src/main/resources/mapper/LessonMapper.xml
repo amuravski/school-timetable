@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.solvd.schooltimetable.persistence.LessonRepository">
+    <resultMap id="LessonResultMap" type="com.solvd.schooltimetable.domain.Lesson" autoMapping="false">
+        <id property="id" column="lesson_id"/>
+        <result property="lessonNumber" column="lesson_number"/>
+        <result property="schoolDayId" column="lesson_school_day_id"/>
+        <association property="teacher"
+                     resultMap="com.solvd.schooltimetable.persistence.TeacherRepository.TeacherResultMap"/>
+    </resultMap>
+
+    <sql id="fields">
+        l.id as lesson_id,
+        l.school_day_id as lesson_school_day_id,
+        l.lesson_number as lesson_number
+    </sql>
+
+    <sql id="joins">
+        left join teachers t on t.id = l.teacher_id
+    </sql>
+
+    <sql id="findAll">
+        select
+        <include refid="fields"/>,
+        <include refid="com.solvd.schooltimetable.persistence.TeacherRepository.fields"/>,
+        <include refid="com.solvd.schooltimetable.persistence.SubjectRepository.fields"/>
+        from lessons l
+        <include refid="joins"/>
+        <include refid="com.solvd.schooltimetable.persistence.TeacherRepository.joins"/>
+    </sql>
+
+    <insert id="create" keyProperty="id" useGeneratedKeys="true">
+        insert into lessons (teacher_id, lesson_number, school_day_id)
+        values (#{teacher.id}, #{lessonNumber}, #{schoolDayId});
+    </insert>
+
+    <select id="findAll" resultMap="LessonResultMap">
+        <include refid="findAll"/>
+    </select>
+
+    <select id="findById" resultMap="LessonResultMap">
+        <include refid="findAll"/>
+        where l.id = #{id};
+    </select>
+
+    <update id="update">
+        update lessons set
+        teacher_id = #{teacher.id},
+        lesson_number = #{lessonNumber},
+        school_day_id = #{schoolDayId}
+        where id = #{id};
+    </update>
+
+    <delete id="deleteById">
+        delete from lessons where id = #{id};
+    </delete>
+</mapper>

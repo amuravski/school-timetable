@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.solvd.schooltimetable.persistence.ClassTimetableRepository">
+    <resultMap id="ClassTimetableResultMap" type="com.solvd.schooltimetable.domain.ClassTimetable" autoMapping="false">
+        <id property="id" column="class_timetable_id"/>
+        <association property="schoolClass"
+                     resultMap="com.solvd.schooltimetable.persistence.SchoolClassRepository.SchoolClassResultMap"/>
+        <collection property="schoolDays"
+                    resultMap="com.solvd.schooltimetable.persistence.SchoolDayRepository.SchoolDayResultMap"/>
+    </resultMap>
+
+    <sql id="fields">
+        ct.id as class_timetable_id,
+        ct.class_id as class_id,
+        ct.school_timetable_id as school_timetable_id
+
+    </sql>
+
+    <sql id="joins">
+        left join school_days sd on sd.timetable_id = ct.id
+        left join school_classes sc on ct.class_id = sc.id
+    </sql>
+
+    <sql id="findAll">
+        select
+        <include refid="fields"/>,
+        <include refid="com.solvd.schooltimetable.persistence.SchoolClassRepository.fields"/>,
+        <include refid="com.solvd.schooltimetable.persistence.CalendarDayRepository.fields"/>,
+        <include refid="com.solvd.schooltimetable.persistence.SchoolDayRepository.fields"/>,
+        <include refid="com.solvd.schooltimetable.persistence.LessonRepository.fields"/>,
+        <include refid="com.solvd.schooltimetable.persistence.TeacherRepository.fields"/>,
+        <include refid="com.solvd.schooltimetable.persistence.SubjectRepository.fields"/>
+        from class_timetables ct
+        <include refid="joins"/>
+        <include refid="com.solvd.schooltimetable.persistence.SchoolDayRepository.joins"/>
+        <include refid="com.solvd.schooltimetable.persistence.LessonRepository.joins"/>
+        <include refid="com.solvd.schooltimetable.persistence.TeacherRepository.joins"/>
+    </sql>
+
+    <insert id="create" keyProperty="id" useGeneratedKeys="true">
+        insert into class_timetables (class_id, school_timetable_id)
+        values (#{schoolClass.id}, #{schoolTimetableId});
+    </insert>
+
+    <select id="findAll" resultMap="ClassTimetableResultMap">
+        <include refid="findAll"/>
+    </select>
+
+    <select id="findById" resultMap="ClassTimetableResultMap">
+        <include refid="findAll"/>
+        where ct.id = #{id};
+    </select>
+
+    <update id="update">
+        update class_timetables set
+        class_id = #{schoolClass.id},
+        school_timetable_id = #{schoolTimetableId}
+        where id = #{id};
+    </update>
+
+    <delete id="deleteById">
+        delete from class_timetables where id = #{id};
+    </delete>
+</mapper>

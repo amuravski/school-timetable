@@ -11,6 +11,7 @@
 
     <properties>
         <apache-logger-version>2.18.0</apache-logger-version>
+        <mysql-connector-java-version>8.0.30</mysql-connector-java-version>
         <mybatis-version>3.5.11</mybatis-version>
     </properties>
 
@@ -24,6 +25,11 @@
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
             <version>${apache-logger-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>${mysql-connector-java-version}</version>
         </dependency>
         <dependency>
             <groupId>org.mybatis</groupId>
