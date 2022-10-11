@@ -90,24 +90,24 @@ public class GeneticAlgo {
     }
 
     public void run() {
+        checkArgumentsAlgo();
         List<SchoolTimetable> population = getPopulation();
-        checkArgumentsAlgo(this);
         for (int i = 0; i < geneticAlgoConfig.getMaxIterations(); i++) {
-            if (i != 0 && isGood(false)) {
+            if (i > geneticAlgoConfig.getMaxIterations() / 5 && isGood(false)) {
                 return;
             }
             population = iterateGeneration(population);
         }
     }
 
-    private void checkArgumentsAlgo(GeneticAlgo geneticAlgo) {
-        GeneticAlgoConfig geneticAlgoConfig = geneticAlgo.getGeneticAlgoConfig();
-        int classNumber = geneticAlgo.getSchoolClasses().size();
-        int teachersAmount = geneticAlgo.getTeachers().size();
-        if (geneticAlgoConfig.getMaxLessons() * geneticAlgoConfig.getMinWorkDays() < geneticAlgo.getNumberOfSubjectsWithTeachers()) {
+    private void checkArgumentsAlgo() {
+        GeneticAlgoConfig geneticAlgoConfig = getGeneticAlgoConfig();
+        int classNumber = getSchoolClasses().size();
+        int teachersAmount = getTeachers().size();
+        if (geneticAlgoConfig.getMaxLessons() * geneticAlgoConfig.getMinWorkDays() < numberOfSubjectsWithTeachers) {
             throw new RuntimeException("Not enough lessons in week to include all subjects.");
         }
-        if (geneticAlgoConfig.getMinLessons() * geneticAlgoConfig.getMinWorkDays() < geneticAlgo.getNumberOfSubjectsWithTeachers()) {
+        if (geneticAlgoConfig.getMinLessons() * geneticAlgoConfig.getMinWorkDays() < numberOfSubjectsWithTeachers) {
             throw new RuntimeException("Not enough lessons in a week to include all subjects.");
         }
         if (geneticAlgoConfig.getMinLessons() * classNumber > teachersAmount) {

@@ -3,7 +3,9 @@ package com.solvd.schooltimetable.domain;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class SchoolTimetable {
 
@@ -80,9 +82,9 @@ public class SchoolTimetable {
                 .map(SchoolDay::getCalendarDay)
                 .distinct()
                 .collect(Collectors.toList());
-
-        stringOut.add(classTimetables.stream()
-                .sorted((ct1, ct2) -> -ct2.getSchoolClass().getId().compareTo(ct1.getSchoolClass().getId()))
+        Supplier<Stream<ClassTimetable>> sortedClassTimetablesSupplier = () -> classTimetables.stream()
+                .sorted((ct1, ct2) -> -ct2.getSchoolClass().getId().compareTo(ct1.getSchoolClass().getId()));
+        stringOut.add(sortedClassTimetablesSupplier.get()
                 .map(classTimetable ->
                         String.format("                       %4s class                   ", classTimetable.getSchoolClass().getName()))
                 .collect(Collectors.joining()));
@@ -96,8 +98,7 @@ public class SchoolTimetable {
             stringOut.add(lineRepeat2 + "|\n");
             Long finalJ = j;
 
-            lessons = classTimetables.stream()
-                    .sorted((ct1, ct2) -> -ct2.getSchoolClass().getId().compareTo(ct1.getSchoolClass().getId()))
+            lessons = sortedClassTimetablesSupplier.get()
                     .flatMap(classTimetable -> classTimetable.getSchoolDays().stream())
                     .filter(schoolDay -> (schoolDay.getCalendarDay().getId().equals(finalJ)))
                     .flatMap(schoolDay -> schoolDay.getLessons().stream())

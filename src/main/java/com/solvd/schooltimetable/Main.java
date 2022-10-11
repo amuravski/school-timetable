@@ -37,12 +37,6 @@ public class Main {
         List<CalendarDay> calendarDays = calendarDayService.findAll();
 
         GeneticAlgoConfig geneticAlgoConfig = new GeneticAlgoConfig("geneticAlgoConfig.properties");
-
-        GeneticAlgo geneticAlgo = new GeneticAlgo(geneticAlgoConfig);
-        geneticAlgo.setSchoolClasses(schoolClasses);
-        geneticAlgo.setTeachers(teachers);
-        geneticAlgo.setCalendarDays(calendarDays);
-
         int currentHashcode = Objects.hash(
                 teachers,
                 schoolClasses,

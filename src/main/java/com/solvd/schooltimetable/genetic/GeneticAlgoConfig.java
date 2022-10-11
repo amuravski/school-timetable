@@ -49,48 +49,47 @@ public class GeneticAlgoConfig {
         lucky = Boolean.parseBoolean(geneticAlgoConfigProperties.getProperty("lucky"));
         luckyPercentileThreshold = Integer.parseInt(geneticAlgoConfigProperties.getProperty("luckyPercentileThreshold"));
         mutationChance = Integer.parseInt(geneticAlgoConfigProperties.getProperty("mutationChance"));
-
-        checkArgumentsConfig(this);
+        checkArgumentsConfig();
     }
 
-    private static void checkArgumentsConfig(GeneticAlgoConfig geneticAlgoConfig) {
-        if (geneticAlgoConfig.getMinWorkDays() <= 0) {
+    private void checkArgumentsConfig() {
+        if (minWorkDays <= 0) {
             throw new RuntimeException("No working days in a week.");
         }
-        if (geneticAlgoConfig.getMinWorkDays() > 7) {
+        if (minWorkDays > 7) {
             throw new RuntimeException("More than 7 days in a week.");
         }
-        if (geneticAlgoConfig.getMinLessons() > geneticAlgoConfig.getMaxLessons()) {
+        if (minLessons > maxLessons) {
             throw new RuntimeException("Min quantity of lessons bigger than max quantity of lessons.");
         }
-        if (geneticAlgoConfig.getMinLessons() < 1) {
+        if (minLessons < 1) {
             throw new RuntimeException("Min quantity of lessons less than 1.");
         }
-        if (geneticAlgoConfig.getMaxLessons() > 9) {
+        if (maxLessons > 9) {
             throw new RuntimeException("Max quantity of lessons more than 9.");
         }
-        if (geneticAlgoConfig.getElitismPercentileThreshold() < 1 && geneticAlgoConfig.isElitism()) {
+        if (elitismPercentileThreshold < 1 && isElitism()) {
             throw new RuntimeException("ElitismPercentileThreshold is too low.");
         }
-        if (geneticAlgoConfig.getGenerationPercentileThreshold() < 1) {
+        if (generationPercentileThreshold < 1) {
             throw new RuntimeException("GenerationPercentileThreshold is too low.");
         }
-        if (geneticAlgoConfig.getLuckyPercentileThreshold() < 1 && geneticAlgoConfig.isElitism()) {
+        if (luckyPercentileThreshold < 1 && isElitism()) {
             throw new RuntimeException("LuckyPercentileThreshold is too low.");
         }
-        if (geneticAlgoConfig.getMutationChance() < 1) {
+        if (mutationChance < 1) {
             throw new RuntimeException("MutationChance is too low.");
         }
-        if (geneticAlgoConfig.getElitismPercentileThreshold() + geneticAlgoConfig.getGenerationPercentileThreshold() +
-                geneticAlgoConfig.getLuckyPercentileThreshold() >= 100) {
+        if (elitismPercentileThreshold + generationPercentileThreshold +
+                luckyPercentileThreshold >= 100) {
             throw new RuntimeException("Common percentiles equal or more than 100.");
         }
-        if (geneticAlgoConfig.getMutationChance() > 100) {
+        if (mutationChance > 100) {
             throw new RuntimeException("MutationChance more than 100.");
         }
-        if (geneticAlgoConfig.getPopulationSize() < 100) {
-            geneticAlgoConfig.setPopulationSize(100);
-            LOGGER.info("PopulationSize is too low. PopulationSize changed to: " + geneticAlgoConfig.getPopulationSize());
+        if (populationSize < 100) {
+            setPopulationSize(100);
+            LOGGER.info("PopulationSize is too low. PopulationSize changed to: " + populationSize);
         }
     }
 
