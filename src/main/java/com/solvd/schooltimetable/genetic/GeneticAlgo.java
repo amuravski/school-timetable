@@ -75,6 +75,16 @@ public class GeneticAlgo {
         return allSubjects;
     }
 
+    public void generateAndSetHashcode() {
+        currentBest.setHashcode(Objects.hash(
+                teachers,
+                schoolClasses,
+                calendarDays,
+                geneticAlgoConfig.getMinWorkDays(),
+                geneticAlgoConfig.getMinLessons(),
+                geneticAlgoConfig.getMaxLessons()));
+    }
+
     public void run() {
         List<SchoolTimetable> population = getPopulation();
         for (int i = 0; i < geneticAlgoConfig.getMaxIterations(); i++) {
@@ -348,7 +358,7 @@ public class GeneticAlgo {
                     lesson.setTeacher(randomTeacher);
                 }
             }
-            lesson.setLessonNumber(i);
+            lesson.setLessonNumber(lessonNumber);
             offspringLessons.add(lesson);
             lessonNumber++;
         }
