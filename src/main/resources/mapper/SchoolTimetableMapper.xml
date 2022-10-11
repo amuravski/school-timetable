@@ -3,12 +3,14 @@
 <mapper namespace="com.solvd.schooltimetable.persistence.SchoolTimetableRepository">
     <resultMap id="SchoolTimetableResultMap" type="com.solvd.schooltimetable.domain.SchoolTimetable" autoMapping="false">
         <id property="id" column="school_timetable_id"/>
+        <result property="hashcode" column="school_timetable_hashcode"/>
         <collection property="classTimetables"
                     resultMap="com.solvd.schooltimetable.persistence.ClassTimetableRepository.ClassTimetableResultMap"/>
     </resultMap>
 
     <sql id="fields">
-        st.id as school_timetable_id
+        st.id as school_timetable_id,
+        st.hashcode as school_timetable_hashcode
     </sql>
 
     <sql id="joins">

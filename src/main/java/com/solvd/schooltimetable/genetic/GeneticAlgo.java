@@ -27,32 +27,62 @@ public class GeneticAlgo {
         historicalAverageFitness = new ArrayList<>();
     }
 
-    public int getNumberOfSubjectsWithTeachers() {
-        return numberOfSubjectsWithTeachers;
-    }
-
-    public List<SchoolClass> getSchoolClasses() {
-        return schoolClasses;
+    public GeneticAlgoConfig getGeneticAlgoConfig() {
+        return geneticAlgoConfig;
     }
 
     public List<Teacher> getTeachers() {
         return teachers;
     }
 
+    public void setTeachers(List<Teacher> teachers) {
+        this.teachers = teachers;
+        this.allSubjects = this.teachers.stream()
+                .map(Teacher::getSubject)
+                .collect(Collectors.toSet());
+        this.numberOfSubjectsWithTeachers = this.allSubjects.size();
+    }
+
+    public List<SchoolClass> getSchoolClasses() {
+        return schoolClasses;
+    }
+
+    public void setSchoolClasses(List<SchoolClass> schoolClasses) {
+        this.schoolClasses = schoolClasses;
+    }
+
+    public List<CalendarDay> getCalendarDays() {
+        return calendarDays;
+    }
+
+    public void setCalendarDays(List<CalendarDay> calendarDays) {
+        this.calendarDays = calendarDays;
+    }
+
     public SchoolTimetable getCurrentBest() {
         return currentBest;
     }
 
-    public GeneticAlgoConfig getGeneticAlgoConfig() {
-        return geneticAlgoConfig;
-    }
-
-    public List<Double> getHistoricalAverageFitness() {
-        return historicalAverageFitness;
-    }
-
     public double getCurrentBestFitness() {
         return currentBestFitness;
+    }
+
+    public int getNumberOfSubjectsWithTeachers() {
+        return numberOfSubjectsWithTeachers;
+    }
+
+    public Set<Subject> getAllSubjects() {
+        return allSubjects;
+    }
+
+    public void generateAndSetHashcode() {
+        currentBest.setHashcode(Objects.hash(
+                teachers,
+                schoolClasses,
+                calendarDays,
+                geneticAlgoConfig.getMinWorkDays(),
+                geneticAlgoConfig.getMinLessons(),
+                geneticAlgoConfig.getMaxLessons()));
     }
 
     public void run() {
@@ -69,10 +99,13 @@ public class GeneticAlgo {
         SchoolTimetable schoolTimetable = currentBest;
         Supplier<Stream<List<SchoolDay>>> daysSupplier = () -> schoolTimetable.getClassTimetables().stream()
                 .map(ClassTimetable::getSchoolDays);
-        if (daysSupplier.get().flatMap(Collection::stream)
-                .anyMatch(schoolDay -> schoolDay.getLessons().stream().map(lesson -> lesson.getTeacher().getSubject())
+        if (daysSupplier.get()
+                .flatMap(Collection::stream)
+                .anyMatch(schoolDay -> schoolDay.getLessons().stream()
+                        .map(lesson -> lesson.getTeacher().getSubject())
                         .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
-                        .values().stream()
+                        .values()
+                        .stream()
                         .anyMatch(value -> value > 1))) {
             if (show) {
                 System.out.println("Contains non unique subjects.");
@@ -85,8 +118,7 @@ public class GeneticAlgo {
                 .collect(Collectors.toList()))
                 .collect(Collectors.toList());
         if (lessons.stream()
-                .map(allClassLessons -> allClassLessons
-                        .stream()
+                .map(allClassLessons -> allClassLessons.stream()
                         .map(lesson -> lesson.getTeacher().getSubject())
                         .collect(Collectors.groupingBy(Function.identity(), Collectors.counting())))
                 .map(Map::size)
@@ -129,19 +161,22 @@ public class GeneticAlgo {
         Supplier<Stream<List<SchoolDay>>> daysSupplier = () -> schoolTimetable.getClassTimetables().stream()
                 .map(ClassTimetable::getSchoolDays);
         if (daysSupplier.get().flatMap(Collection::stream)
-                .anyMatch(schoolDay -> schoolDay.getLessons().stream().map(lesson -> lesson.getTeacher().getSubject())
+                .anyMatch(schoolDay -> schoolDay.getLessons().stream()
+                        .map(lesson -> lesson.getTeacher().getSubject())
                         .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))
-                        .values().stream()
+                        .values()
+                        .stream()
                         .anyMatch(value -> value > 1))) {
             fitness--;
         }
         else {
             fitness++;
         }
-        List<List<Lesson>> lessons = daysSupplier.get().map(schoolDays -> schoolDays
-                .stream()
-                .flatMap(schoolDay -> schoolDay.getLessons().stream())
-                .collect(Collectors.toList()))
+        List<List<Lesson>> lessons = daysSupplier.get()
+                .map(schoolDays -> schoolDays
+                        .stream()
+                        .flatMap(schoolDay -> schoolDay.getLessons().stream())
+                        .collect(Collectors.toList()))
                 .collect(Collectors.toList());
         for (int i = 0; i < lessons.size() - 1; i++) {
             for (int j = i + 1; j < lessons.size(); j++) {
@@ -165,12 +200,12 @@ public class GeneticAlgo {
             }
         }
         return fitness + 4 / lessons.stream()
-                .map(allClassLessons -> allClassLessons
-                        .stream()
+                .map(allClassLessons -> allClassLessons.stream()
                         .map(lesson -> lesson.getTeacher().getSubject())
                         .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()))).
                         peek(subjectLongMap -> allSubjects
-                                .forEach(subject -> subjectLongMap.putIfAbsent(subject, (long) -8 * geneticAlgoConfig.getMaxLessons())))
+                                .forEach(subject -> subjectLongMap
+                                        .putIfAbsent(subject, (long) -8 * geneticAlgoConfig.getMaxLessons())))
                 .map(subjectLongMap -> computeStandardDeviation(subjectLongMap.values()))
                 .reduce(Double::sum)
                 .get();
@@ -248,32 +283,30 @@ public class GeneticAlgo {
 
     private SchoolTimetable getRandomSchoolTimetable() {
         SchoolTimetable result = new SchoolTimetable();
-        List<ClassTimetable> classTimetables = schoolClasses.stream()
-                .map(schoolClass -> {
-                    Random rand = new Random();
-                    List<SchoolDay> schoolDays = new ArrayList<>();
-                    for (int i = 0; i < geneticAlgoConfig.getMinWorkDays(); i++) {
-                        SchoolDay schoolDay = new SchoolDay();
-                        schoolDay.setCalendarDay(calendarDays.get(i));
-                        int numberOfLessons = (int) (geneticAlgoConfig.getMinLessons() +
-                                Math.random() *
-                                        (geneticAlgoConfig.getMaxLessons() - geneticAlgoConfig.getMinLessons() + 1));
-                        List<Lesson> lessons = new ArrayList<>();
-                        for (int j = 1; j < numberOfLessons + 1; j++) {
-                            Teacher randomTeacher = teachers.get(rand.nextInt(teachers.size()));
-                            Lesson lesson = new Lesson(randomTeacher);
-                            lesson.setLessonNumber(j);
-                            lessons.add(lesson);
-                        }
-                        schoolDay.setLessons(lessons);
-                        schoolDays.add(schoolDay);
-                    }
-                    ClassTimetable classTimetable = new ClassTimetable();
-                    classTimetable.setSchoolClass(schoolClass);
-                    classTimetable.setSchoolDays(schoolDays);
-                    return classTimetable;
-                })
-                .collect(Collectors.toList());
+        List<ClassTimetable> classTimetables = new ArrayList<>();
+        Random rand = new Random();
+        for (SchoolClass schoolClass : schoolClasses) {
+            List<SchoolDay> schoolDays = new ArrayList<>();
+            ClassTimetable classTimetable = new ClassTimetable(schoolClass);
+            for (int i = 0; i < geneticAlgoConfig.getMinWorkDays(); i++) {
+                SchoolDay schoolDay = new SchoolDay();
+                schoolDay.setCalendarDay(calendarDays.get(i));
+                int numberOfLessons = (int) (geneticAlgoConfig.getMinLessons() +
+                        Math.random() *
+                                (geneticAlgoConfig.getMaxLessons() - geneticAlgoConfig.getMinLessons() + 1));
+                List<Lesson> lessons = new ArrayList<>();
+                for (int j = 1; j < numberOfLessons + 1; j++) {
+                    Teacher randomTeacher = teachers.get(rand.nextInt(teachers.size()));
+                    Lesson lesson = new Lesson(randomTeacher);
+                    lesson.setLessonNumber(j);
+                    lessons.add(lesson);
+                }
+                schoolDay.setLessons(lessons);
+                schoolDays.add(schoolDay);
+            }
+            classTimetable.setSchoolDays(schoolDays);
+            classTimetables.add(classTimetable);
+        }
         result.setClassTimetables(classTimetables);
         return result;
     }
@@ -291,22 +324,6 @@ public class GeneticAlgo {
         int complementPopulationSize = geneticAlgoConfig.getPopulationSize() - currentPopulationSize;
         IntStream.range(0, complementPopulationSize)
                 .forEach((i) -> schoolTimetables.add(getRandomSchoolTimetable()));
-    }
-
-    public void setSchoolClasses(List<SchoolClass> schoolClasses) {
-        this.schoolClasses = schoolClasses;
-    }
-
-    public void setTeachers(List<Teacher> teachers) {
-        this.teachers = teachers;
-        this.allSubjects = this.teachers.stream()
-                .map(Teacher::getSubject)
-                .collect(Collectors.toSet());
-        this.numberOfSubjectsWithTeachers = this.allSubjects.size();
-    }
-
-    public void setCalendarDays(List<CalendarDay> calendarDays) {
-        this.calendarDays = calendarDays;
     }
 
     private ClassTimetable getOffspring(ClassTimetable p1, ClassTimetable p2) {
@@ -341,7 +358,7 @@ public class GeneticAlgo {
                     lesson.setTeacher(randomTeacher);
                 }
             }
-            lesson.setLessonNumber(i);
+            lesson.setLessonNumber(lessonNumber);
             offspringLessons.add(lesson);
             lessonNumber++;
         }
