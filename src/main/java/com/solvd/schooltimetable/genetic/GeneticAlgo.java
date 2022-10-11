@@ -2,6 +2,8 @@ package com.solvd.schooltimetable.genetic;
 
 import com.solvd.schooltimetable.domain.*;
 import com.solvd.schooltimetable.util.DoubleStatistics;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 import java.util.function.Function;
@@ -11,6 +13,8 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public class GeneticAlgo {
+
+    private static final Logger LOGGER = LogManager.getLogger(GeneticAlgo.class);
 
     private final GeneticAlgoConfig geneticAlgoConfig;
     private final List<Double> historicalAverageFitness;
@@ -87,11 +91,31 @@ public class GeneticAlgo {
 
     public void run() {
         List<SchoolTimetable> population = getPopulation();
+        checkArgumentsAlgo(this);
         for (int i = 0; i < geneticAlgoConfig.getMaxIterations(); i++) {
             if (i != 0 && isGood(false)) {
                 return;
             }
             population = iterateGeneration(population);
+        }
+    }
+
+    private void checkArgumentsAlgo(GeneticAlgo geneticAlgo) {
+        GeneticAlgoConfig geneticAlgoConfig = geneticAlgo.getGeneticAlgoConfig();
+        int classNumber = geneticAlgo.getSchoolClasses().size();
+        int teachersAmount = geneticAlgo.getTeachers().size();
+        if (geneticAlgoConfig.getMaxLessons() * geneticAlgoConfig.getMinWorkDays() < geneticAlgo.getNumberOfSubjectsWithTeachers()) {
+            throw new RuntimeException("Not enough lessons in week to include all subjects.");
+        }
+        if (geneticAlgoConfig.getMinLessons() * geneticAlgoConfig.getMinWorkDays() < geneticAlgo.getNumberOfSubjectsWithTeachers()) {
+            throw new RuntimeException("Not enough lessons in a week to include all subjects.");
+        }
+        if (geneticAlgoConfig.getMinLessons() * classNumber > teachersAmount) {
+            throw new RuntimeException("Not enough teachers for this number of classes.");
+        }
+        if (geneticAlgoConfig.getMaxIterations() < 100 * (int) Math.pow(classNumber, 2)) {
+            geneticAlgoConfig.setMaxIterations(100 * (int) Math.pow(classNumber, 2));
+            LOGGER.info("Not enough MaxIterations. MaxIterations changed to: " + geneticAlgoConfig.getMaxIterations());
         }
     }
 
