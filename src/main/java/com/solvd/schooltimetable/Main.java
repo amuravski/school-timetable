@@ -20,6 +20,7 @@ import org.apache.logging.log4j.Logger;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.IntStream;
 
 public class Main {
 
@@ -54,11 +55,22 @@ public class Main {
             int n = 128;
             long t = System.currentTimeMillis();
             LOGGER.info("Number of classes: " + schoolClasses.size());
-            GeneticAlgo geneticAlgo = new GeneticAlgo(geneticAlgoConfig);
-            geneticAlgo.setSchoolClasses(schoolClasses);
-            geneticAlgo.setTeachers(teachers);
-            geneticAlgo.setCalendarDays(calendarDays);
-            Optional<SchoolTimetable> generated = geneticAlgo.runAsync(n);
+            Optional<SchoolTimetable> generated =
+                    IntStream.range(0, n)
+                            .parallel()
+                            .boxed()
+                            .map(i -> {
+                                GeneticAlgo geneticAlgoThread = new GeneticAlgo(geneticAlgoConfig);
+                                geneticAlgoThread.setSchoolClasses(schoolClasses);
+                                geneticAlgoThread.setTeachers(teachers);
+                                geneticAlgoThread.setCalendarDays(calendarDays);
+                                geneticAlgoThread.run();
+                                return geneticAlgoThread;
+                            })
+                            .filter(GeneticAlgo::isGood)
+                            .peek(GeneticAlgo::generateAndSetHashcode)
+                            .map(GeneticAlgo::getCurrentBest)
+                            .findAny();
             LOGGER.info("Elapsed time: " + (System.currentTimeMillis() - t) / 1000.);
             LOGGER.info(generated
                     .orElseThrow(() -> new RuntimeException("Unable to generate timetable with such arguments."))
